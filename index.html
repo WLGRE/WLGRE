@@ -1009,7 +1009,7 @@ document.getElementById('rental-form').addEventListener('input', updateProgress)
 document.getElementById('sig_date').valueAsDate = new Date();
 
 // ── Validation & submit ─────────────────────────────────────────────────────
-document.getElementById('rental-form').addEventListener('submit', function(e) {
+document.getElementById('rental-form').addEventListener('submit', async function(e) {
   e.preventDefault();
   let valid = true;
 
@@ -1031,12 +1031,40 @@ document.getElementById('rental-form').addEventListener('submit', function(e) {
     return;
   }
 
-  // Success
-  const ref = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
-  document.getElementById('success-ref').textContent = ref;
-  document.getElementById('form-body').style.display = 'none';
-  document.getElementById('success-screen').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Collect all form data
+  const formData = new FormData(this);
+  // Add signature as base64 image
+  formData.append('signature_image', canvas.toDataURL('image/png'));
+
+  // Show loading state
+  const btn = this.querySelector('.submit-btn');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('https://formspree.io/f/mkopwbnn', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      const ref = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
+      document.getElementById('success-ref').textContent = ref;
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const data = await response.json();
+      alert('Submission failed: ' + (data?.errors?.map(e => e.message).join(', ') || 'Please try again.'));
+      btn.textContent = 'Submit Application →';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Network error. Please check your connection and try again.');
+    btn.textContent = 'Submit Application →';
+    btn.disabled = false;
+  }
 });
 
 function resetForm() {
