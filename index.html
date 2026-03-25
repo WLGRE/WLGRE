@@ -124,6 +124,7 @@
     text-transform: uppercase;
     color: rgba(255,255,255,0.3);
     transition: color 0.3s;
+    cursor: pointer;
   }
   .progress-label.done, .progress-label.active { color: var(--accent); }
 
@@ -456,7 +457,7 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="header-eyebrow">Rental Application Form</div>
-    <h1 class="header-title">WLGRE Rental Application</h1>
+    <h1 class="header-title">Apply for<br>Your New Home</h1>
     <div class="header-rule"></div>
     <p class="header-subtitle">Complete all sections accurately. Your information is kept confidential and used solely for screening purposes.</p>
   </div>
@@ -471,12 +472,12 @@
         <div class="progress-step" id="ps6"></div>
       </div>
       <div class="progress-labels">
-        <div class="progress-label active" id="pl1">Property</div>
-        <div class="progress-label" id="pl2">Personal</div>
-        <div class="progress-label" id="pl3">Employment</div>
-        <div class="progress-label" id="pl4">Rental Hist.</div>
-        <div class="progress-label" id="pl5">References</div>
-        <div class="progress-label" id="pl6">Finalize</div>
+        <div class="progress-label active" id="pl1" onclick="goToSection(1)">Property</div>
+        <div class="progress-label" id="pl2" onclick="goToSection(2)">Personal</div>
+        <div class="progress-label" id="pl3" onclick="goToSection(3)">Employment</div>
+        <div class="progress-label" id="pl4" onclick="goToSection(4)">Rental Hist.</div>
+        <div class="progress-label" id="pl5" onclick="goToSection(5)">References</div>
+        <div class="progress-label" id="pl6" onclick="goToSection(7)">Finalize</div>
       </div>
     </div>
   </div>
@@ -925,6 +926,22 @@ function toggleSection(header) {
   const toggle = header.querySelector('.section-toggle');
   body.classList.toggle('collapsed');
   toggle.style.transform = body.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
+}
+
+// ── Progress label navigation ──────────────────────────────────────────────
+function goToSection(num) {
+  const section = document.querySelector(`.form-section[data-section="${num}"]`);
+  if (!section) return;
+
+  const body = section.querySelector('.section-body');
+  const toggle = section.querySelector('.section-toggle');
+
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    if (toggle) toggle.style.transform = '';
+  }
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Choice buttons ──────────────────────────────────────────────────────────
