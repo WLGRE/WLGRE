@@ -7,145 +7,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1a1a2e;
-    --ink-soft: #3d3d5c;
-    --ink-mute: #7a7a9a;
-    --paper: #faf9f6;
-    --paper-warm: #f4f1ea;
-    --paper-card: #ffffff;
-    --accent: #c8a96e;
-    --accent-deep: #a0813e;
-    --accent-light: #f5eed8;
-    --success: #2d7a4f;
-    --error: #b94040;
-    --border: #e0dbd0;
-    --border-focus: #c8a96e;
-    --section-gap: 2.5rem;
-    --radius: 4px;
+    --ink: #1a1a2e; --ink-soft: #3d3d5c; --ink-mute: #7a7a9a;
+    --paper: #faf9f6; --paper-warm: #f4f1ea; --paper-card: #ffffff;
+    --accent: #c8a96e; --accent-deep: #a0813e; --accent-light: #f5eed8;
+    --success: #2d7a4f; --error: #b94040; --border: #e0dbd0;
+    --border-focus: #c8a96e; --radius: 4px;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.07) 0%, transparent 50%),
+    font-family: 'DM Sans', sans-serif; background: var(--paper);
+    color: var(--ink); min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.07) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 80%, rgba(200,169,110,0.05) 0%, transparent 50%);
   }
-
-  /* ── Header ── */
-  .site-header {
-    background: var(--ink);
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-  }
+  .site-header { background: var(--ink); padding: 0; position: relative; overflow: hidden; }
   .site-header::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 80px,
-      rgba(200,169,110,0.04) 80px,
-      rgba(200,169,110,0.04) 81px
-    );
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(200,169,110,0.04) 80px, rgba(200,169,110,0.04) 81px);
   }
-  .header-inner {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 3.5rem 2rem 3rem;
-    position: relative;
-    z-index: 1;
-  }
-  .header-eyebrow {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
-  }
-  .header-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.15;
-    margin-bottom: 1rem;
-  }
-  .header-subtitle {
-    font-size: 0.875rem;
-    color: rgba(255,255,255,0.5);
-    font-weight: 300;
-    line-height: 1.6;
-    max-width: 480px;
-  }
-  .header-rule {
-    width: 48px;
-    height: 2px;
-    background: var(--accent);
-    margin: 1.5rem 0;
-  }
-
-  /* ── Progress bar ── */
-  .progress-bar-wrap {
-    background: var(--ink);
-    padding: 0 2rem 1.5rem;
-  }
+  .header-inner { max-width: 760px; margin: 0 auto; padding: 3.5rem 2rem 3rem; position: relative; z-index: 1; }
+  .header-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .header-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 1rem; }
+  .header-subtitle { font-size: 0.875rem; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.6; max-width: 480px; }
+  .header-rule { width: 48px; height: 2px; background: var(--accent); margin: 1.5rem 0; }
+  .progress-bar-wrap { background: var(--ink); padding: 0 2rem 1.5rem; }
   .progress-bar-inner { max-width: 760px; margin: 0 auto; }
-  .progress-steps {
-    display: flex;
-    gap: 6px;
-  }
-  .progress-step {
-    flex: 1;
-    height: 3px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 2px;
-    transition: background 0.4s ease;
-  }
+  .progress-steps { display: flex; gap: 6px; }
+  .progress-step { flex: 1; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; transition: background 0.4s ease; }
   .progress-step.done { background: var(--accent); }
   .progress-step.active { background: rgba(200,169,110,0.5); }
-  .progress-labels {
-    display: flex;
-    margin-top: 0.6rem;
-  }
-  .progress-label {
-    flex: 1;
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    transition: color 0.3s;
-    cursor: pointer;
-  }
+  .progress-labels { display: flex; margin-top: 0.6rem; }
+  .progress-label { flex: 1; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.3); transition: color 0.3s; cursor: pointer; }
   .progress-label.done, .progress-label.active { color: var(--accent); }
-
-  /* ── Layout ── */
-  .form-container {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem 4rem;
-  }
-
-  /* ── Sections ── */
-  .form-section {
-    background: var(--paper-card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(16px);
-    animation: fadeUp 0.5s ease forwards;
-  }
+  .form-container { max-width: 760px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  .form-section { background: var(--paper-card); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1.5rem; overflow: hidden; opacity: 0; transform: translateY(16px); animation: fadeUp 0.5s ease forwards; }
   .form-section:nth-child(1) { animation-delay: 0.05s; }
   .form-section:nth-child(2) { animation-delay: 0.1s; }
   .form-section:nth-child(3) { animation-delay: 0.15s; }
@@ -153,302 +48,55 @@
   .form-section:nth-child(5) { animation-delay: 0.25s; }
   .form-section:nth-child(6) { animation-delay: 0.3s; }
   .form-section:nth-child(7) { animation-delay: 0.35s; }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .section-header {
-    padding: 1.1rem 1.5rem;
-    background: var(--paper-warm);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    user-select: none;
-  }
-  .section-icon {
-    width: 28px; height: 28px;
-    background: var(--ink);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.75rem;
-    color: var(--accent);
-    font-weight: 700;
-    font-family: 'Playfair Display', serif;
-  }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--ink);
-    flex: 1;
-  }
-  .section-toggle {
-    font-size: 1rem;
-    color: var(--ink-mute);
-    transition: transform 0.3s;
-  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .section-header { padding: 1.1rem 1.5rem; background: var(--paper-warm); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; cursor: pointer; user-select: none; }
+  .section-icon { width: 28px; height: 28px; background: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; color: var(--accent); font-weight: 700; font-family: 'Playfair Display', serif; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: var(--ink); flex: 1; }
+  .section-toggle { font-size: 1rem; color: var(--ink-mute); transition: transform 0.3s; }
   .section-body { padding: 1.5rem; }
   .section-body.collapsed { display: none; }
-
-  /* ── Grid ── */
   .grid { display: grid; gap: 1rem; }
   .grid-2 { grid-template-columns: 1fr 1fr; }
   .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-  @media (max-width: 560px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 560px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
   .col-span-2 { grid-column: span 2; }
   @media (max-width: 560px) { .col-span-2 { grid-column: span 1; } }
-
-  /* ── Fields ── */
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
-  .field label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
+  .field label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
   .field label .req { color: var(--accent-deep); margin-left: 2px; }
-
-  .field input,
-  .field select,
-  .field textarea {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: var(--ink);
-    background: var(--paper);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.6rem 0.85rem;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    width: 100%;
-    -webkit-appearance: none;
-  }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    border-color: var(--border-focus);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
-  }
-  .field input.error,
-  .field select.error,
-  .field textarea.error {
-    border-color: var(--error);
-    box-shadow: 0 0 0 3px rgba(185,64,64,0.1);
-  }
-  .field .field-error {
-    font-size: 0.72rem;
-    color: var(--error);
-    display: none;
-  }
-  .field input.error ~ .field-error,
-  .field select.error ~ .field-error,
-  .field textarea.error ~ .field-error { display: block; }
-
+  .field input, .field select, .field textarea { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.85rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; width: 100%; -webkit-appearance: none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 3px rgba(200,169,110,0.15); }
+  .field input.error, .field select.error, .field textarea.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(185,64,64,0.1); }
+  .field .field-error { font-size: 0.72rem; color: var(--error); display: none; }
+  .field input.error ~ .field-error, .field select.error ~ .field-error, .field textarea.error ~ .field-error { display: block; }
   .field textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
-  .field select { cursor: pointer; padding-right: 2rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.85rem center;
-  }
-
-  /* ── Radio/Checkbox group ── */
+  .field select { cursor: pointer; padding-right: 2rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.85rem center; }
   .choice-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.2rem; }
-  .choice-btn {
-    padding: 0.45rem 1rem;
-    border: 1.5px solid var(--border);
-    border-radius: 100px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: var(--ink-soft);
-    background: var(--paper);
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
+  .choice-btn { padding: 0.45rem 1rem; border: 1.5px solid var(--border); border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--ink-soft); background: var(--paper); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .choice-btn:hover { border-color: var(--accent); color: var(--ink); }
-  .choice-btn.selected {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--accent);
-  }
-
-  /* ── Divider ── */
-  .divider {
-    display: flex; align-items: center; gap: 1rem;
-    margin: 1.5rem 0 1rem;
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--ink-mute);
-  }
-  .divider::before, .divider::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
-
-  /* ── Info box ── */
-  .info-box {
-    background: var(--accent-light);
-    border: 1px solid rgba(200,169,110,0.3);
-    border-left: 3px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 0.85rem 1rem;
-    font-size: 0.82rem;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    margin-bottom: 1rem;
-  }
-
-  /* ── Signature ── */
-  .sig-canvas-wrap {
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    background: #fff;
-    overflow: hidden;
-    position: relative;
-  }
-  .sig-canvas-wrap canvas {
-    display: block;
-    width: 100%;
-    height: 120px;
-    cursor: crosshair;
-    touch-action: none;
-  }
-  .sig-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    font-size: 0.8rem;
-    color: var(--ink-mute);
-    letter-spacing: 0.04em;
-    gap: 0.4rem;
-  }
+  .choice-btn.selected { background: var(--ink); border-color: var(--ink); color: var(--accent); }
+  .divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0 1rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .info-box { background: var(--accent-light); border: 1px solid rgba(200,169,110,0.3); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 0.85rem 1rem; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: 1rem; }
+  .sig-canvas-wrap { border: 1.5px solid var(--border); border-radius: var(--radius); background: #fff; overflow: hidden; position: relative; }
+  .sig-canvas-wrap canvas { display: block; width: 100%; height: 120px; cursor: crosshair; touch-action: none; }
+  .sig-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-size: 0.8rem; color: var(--ink-mute); letter-spacing: 0.04em; gap: 0.4rem; }
   .sig-placeholder.hidden { display: none; }
-  .sig-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.4rem;
-  }
-  .sig-clear {
-    font-size: 0.72rem;
-    color: var(--ink-mute);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.2rem 0.4rem;
-    font-family: 'DM Sans', sans-serif;
-    letter-spacing: 0.04em;
-    text-decoration: underline;
-  }
+  .sig-actions { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
+  .sig-clear { font-size: 0.72rem; color: var(--ink-mute); background: none; border: none; cursor: pointer; padding: 0.2rem 0.4rem; font-family: 'DM Sans', sans-serif; letter-spacing: 0.04em; text-decoration: underline; }
   .sig-clear:hover { color: var(--error); }
-
-  /* ── Auth text ── */
-  .auth-text {
-    font-size: 0.8rem;
-    line-height: 1.65;
-    color: var(--ink-soft);
-    background: var(--paper-warm);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.2rem;
-    margin-bottom: 1.25rem;
-  }
-
-  /* ── Submit area ── */
-  .submit-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 2rem 0 0;
-  }
-  .submit-btn {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink);
-    background: var(--accent);
-    border: none;
-    padding: 1rem 3rem;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    box-shadow: 0 2px 12px rgba(200,169,110,0.3);
-  }
-  .submit-btn:hover {
-    background: var(--accent-deep);
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(160,129,62,0.4);
-    transform: translateY(-1px);
-  }
+  .auth-text { font-size: 0.8rem; line-height: 1.65; color: var(--ink-soft); background: var(--paper-warm); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; margin-bottom: 1.25rem; }
+  .submit-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem 0 0; }
+  .submit-btn { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); background: var(--accent); border: none; padding: 1rem 3rem; border-radius: var(--radius); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 2px 12px rgba(200,169,110,0.3); }
+  .submit-btn:hover { background: var(--accent-deep); color: #fff; box-shadow: 0 4px 20px rgba(160,129,62,0.4); transform: translateY(-1px); }
   .submit-btn:active { transform: translateY(0); }
-  .submit-note {
-    font-size: 0.75rem;
-    color: var(--ink-mute);
-    text-align: center;
-  }
-
-  /* ── Success screen ── */
-  #success-screen {
-    display: none;
-    text-align: center;
-    padding: 4rem 2rem;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .success-icon {
-    width: 72px; height: 72px;
-    background: var(--success);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 1.5rem;
-    font-size: 1.8rem;
-  }
-  .success-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 0.75rem;
-  }
+  .submit-note { font-size: 0.75rem; color: var(--ink-mute); text-align: center; }
+  #success-screen { display: none; text-align: center; padding: 4rem 2rem; max-width: 500px; margin: 0 auto; }
+  .success-icon { width: 72px; height: 72px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; }
   .success-sub { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.65; margin-bottom: 2rem; }
-  .success-ref {
-    display: inline-block;
-    font-family: 'DM Sans', monospace;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: var(--accent-light);
-    border: 1px solid rgba(200,169,110,0.4);
-    border-radius: 4px;
-    padding: 0.4rem 1rem;
-    color: var(--accent-deep);
-    letter-spacing: 0.1em;
-    margin-bottom: 2rem;
-  }
-  .reset-btn {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: var(--ink-mute);
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.6rem 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .success-ref { display: inline-block; font-family: 'DM Sans', monospace; font-size: 0.85rem; font-weight: 600; background: var(--accent-light); border: 1px solid rgba(200,169,110,0.4); border-radius: 4px; padding: 0.4rem 1rem; color: var(--accent-deep); letter-spacing: 0.1em; margin-bottom: 2rem; }
+  .reset-btn { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--ink-mute); background: none; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.6rem 1.5rem; cursor: pointer; transition: all 0.2s; }
   .reset-btn:hover { border-color: var(--ink); color: var(--ink); }
 </style>
 </head>
@@ -599,7 +247,6 @@
           <input type="text" name="id_number" placeholder="ID number">
         </div>
       </div>
-
       <div class="divider">Additional Occupants</div>
       <div class="grid grid-2">
         <div class="field">
@@ -611,7 +258,6 @@
           <input type="text" name="children_ages" placeholder="e.g. 5, 8, 12">
         </div>
       </div>
-
       <div class="divider">Pets</div>
       <div class="field" style="margin-bottom:0.75rem;">
         <label>Do you have pets?</label>
@@ -676,7 +322,6 @@
           <input type="text" name="emp_address" placeholder="789 Business Park, Atlanta, GA">
         </div>
       </div>
-
       <div class="divider">Additional Income Sources</div>
       <div class="grid grid-2">
         <div class="field">
@@ -700,7 +345,6 @@
     </div>
     <div class="section-body">
       <div class="info-box">Please provide your last two rental addresses. If you owned your home, enter the property address and "Owner" as landlord name.</div>
-
       <div class="divider">Most Recent Residence</div>
       <div class="grid grid-2">
         <div class="field col-span-2">
@@ -728,7 +372,6 @@
           <input type="text" name="rh1_reason" placeholder="Moving closer to work">
         </div>
       </div>
-
       <div class="divider">Previous Residence</div>
       <div class="grid grid-2">
         <div class="field col-span-2">
@@ -814,7 +457,6 @@
     </div>
     <div class="section-body">
       <div class="grid" style="gap:1.2rem;">
-
         <div class="field">
           <label>Have you ever been evicted?</label>
           <div class="choice-group" id="evicted-group">
@@ -823,7 +465,6 @@
           </div>
           <input type="hidden" name="evicted" id="evicted_val">
         </div>
-
         <div class="field">
           <label>Have you ever filed for bankruptcy?</label>
           <div class="choice-group" id="bankrupt-group">
@@ -832,7 +473,6 @@
           </div>
           <input type="hidden" name="bankrupt" id="bankrupt_val">
         </div>
-
         <div class="field">
           <label>Have you ever been convicted of a felony?</label>
           <div class="choice-group" id="felony-group">
@@ -841,7 +481,6 @@
           </div>
           <input type="hidden" name="felony" id="felony_val">
         </div>
-
         <div class="field">
           <label>Do you smoke?</label>
           <div class="choice-group" id="smoke-group">
@@ -850,7 +489,6 @@
           </div>
           <input type="hidden" name="smoker" id="smoker_val">
         </div>
-
         <div class="field">
           <label>If Yes to any above, please explain</label>
           <textarea name="disclosure_explain" placeholder="Provide any relevant details…"></textarea>
@@ -908,7 +546,6 @@
 
 </div><!-- /form-container -->
 
-<!-- Success screen -->
 <div id="success-screen">
   <div class="success-icon">✓</div>
   <h2 class="success-title">Application Submitted</h2>
@@ -920,7 +557,11 @@
 </main>
 
 <script>
-// ── Section toggle ──────────────────────────────────────────────────────────
+// ── PASTE YOUR GOOGLE APPS SCRIPT URL BELOW ─────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzelQZHVXWmfayxq1HSDVhfjfnGM88BEqK-OXtOOFcpOfeGmVYwgE_DT1hde-sWFWin/exec
+// ─────────────────────────────────────────────────';
+// ────────────────────────────────────────────────────────────────────────────
+
 function toggleSection(header) {
   const body = header.nextElementSibling;
   const toggle = header.querySelector('.section-toggle');
@@ -928,29 +569,26 @@ function toggleSection(header) {
   toggle.style.transform = body.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
 }
 
-// ── Progress label navigation ──────────────────────────────────────────────
 function goToSection(num) {
   const section = document.querySelector(`.form-section[data-section="${num}"]`);
   if (!section) return;
-
   const body = section.querySelector('.section-body');
   const toggle = section.querySelector('.section-toggle');
-
   if (body.classList.contains('collapsed')) {
     body.classList.remove('collapsed');
     if (toggle) toggle.style.transform = '';
   }
-
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ── Choice buttons ──────────────────────────────────────────────────────────
 function selectChoice(groupId, value) {
   document.querySelectorAll(`#${groupId} .choice-btn`).forEach(b => {
     b.classList.toggle('selected', b.textContent === value);
   });
-  const map = { 'pets-group': 'has_pets_val', 'evicted-group': 'evicted_val',
-    'bankrupt-group': 'bankrupt_val', 'felony-group': 'felony_val', 'smoke-group': 'smoker_val' };
+  const map = {
+    'pets-group': 'has_pets_val', 'evicted-group': 'evicted_val',
+    'bankrupt-group': 'bankrupt_val', 'felony-group': 'felony_val', 'smoke-group': 'smoker_val'
+  };
   const hiddenId = map[groupId];
   if (hiddenId) document.getElementById(hiddenId).value = value;
   if (groupId === 'pets-group') {
@@ -958,7 +596,6 @@ function selectChoice(groupId, value) {
   }
 }
 
-// ── Signature canvas ────────────────────────────────────────────────────────
 const canvas = document.getElementById('sig-canvas');
 const ctx = canvas.getContext('2d');
 let drawing = false, hasSig = false;
@@ -974,7 +611,6 @@ function resizeCanvas() {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 }
-
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
@@ -996,13 +632,11 @@ function setSigState(signed) {
   hasSig = signed;
   document.getElementById('sig-placeholder').classList.toggle('hidden', signed);
 }
-
 function clearSignature() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   setSigState(false);
 }
 
-// ── Progress update ─────────────────────────────────────────────────────────
 function updateProgress() {
   const sections = document.querySelectorAll('.form-section');
   let filled = 0;
@@ -1019,13 +653,9 @@ function updateProgress() {
     }
   });
 }
-
 document.getElementById('rental-form').addEventListener('input', updateProgress);
-
-// Set today's date
 document.getElementById('sig_date').valueAsDate = new Date();
 
-// ── Validation & submit ─────────────────────────────────────────────────────
 document.getElementById('rental-form').addEventListener('submit', async function(e) {
   e.preventDefault();
   let valid = true;
@@ -1033,7 +663,12 @@ document.getElementById('rental-form').addEventListener('submit', async function
   this.querySelectorAll('[required]').forEach(inp => {
     const empty = inp.value.trim() === '';
     inp.classList.toggle('error', empty);
-    if (empty) { valid = false; if (inp.closest('.section-body.collapsed')) toggleSection(inp.closest('.form-section').querySelector('.section-header')); }
+    if (empty) {
+      valid = false;
+      if (inp.closest('.section-body.collapsed')) {
+        toggleSection(inp.closest('.form-section').querySelector('.section-header'));
+      }
+    }
   });
 
   if (!hasSig) {
@@ -1048,32 +683,32 @@ document.getElementById('rental-form').addEventListener('submit', async function
     return;
   }
 
-  // Collect all form data
+  // Collect form data as JSON for Google Apps Script
   const formData = new FormData(this);
-  // Add signature as base64 image
-  formData.append('signature_image', canvas.toDataURL('image/png'));
+  const data = {};
+  formData.forEach((value, key) => { data[key] = value; });
+  data.signature_image = canvas.toDataURL('image/png');
 
-  // Show loading state
   const btn = this.querySelector('.submit-btn');
   btn.textContent = 'Submitting…';
   btn.disabled = true;
 
   try {
-    const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_URL_HERE', {
+    const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      body: formData,
-      headers: { 'Accept': 'application/json' }
+      body: JSON.stringify(data)
+      // No Content-Type header needed — avoids CORS preflight with Apps Script
     });
 
-    if (response.ok) {
+    const result = await response.json();
+    if (result.result === 'success') {
       const ref = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
       document.getElementById('success-ref').textContent = ref;
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success-screen').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      const data = await response.json();
-      alert('Submission failed: ' + (data?.errors?.map(e => e.message).join(', ') || 'Please try again.'));
+      alert('Submission failed. Please try again.');
       btn.textContent = 'Submit Application →';
       btn.disabled = false;
     }
