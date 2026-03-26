@@ -1,1 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #3d3d5c;
+    --ink-mute: #7a7a9a;
+    --paper: #faf9f6;
+    --paper-warm: #f4f1ea;
+    --paper-card: #ffffff;
+    --accent: #c8a96e;
+    --accent-deep: #a0813e;
+    --accent-light: #f5eed8;
+    --success: #2d7a4f;
+    --error: #b94040;
+    --border: #e0dbd0;
+    --border-focus: #c8a96e;
+    --section-gap: 2.5rem;
+    --radius: 4px;
+  }
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(200,169,110,0.05) 0%, transparent 50%);
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--ink);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 80px,
+      rgba(200,169,110,0.04) 80px,
+      rgba(200,169,110,0.04) 81px
+    );
+  }
+  .header-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem 3rem;
+    position: relative;
+    z-index: 1;
+  }
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .header-subtitle {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+  .header-rule {
+    width: 48px;
+    height: 2px;
+    background: var(--accent);
+    margin: 1.5rem 0;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar-wrap {
+    background: var(--ink);
+    padding: 0 2rem 1.5rem;
+  }
+  .progress-bar-inner { max-width: 760px; margin: 0 auto; }
+  .progress-steps {
+    display: flex;
+    gap: 6px;
+  }
+  .progress-step {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    transition: background 0.4s ease;
+  }
+  .progress-step.done { background: var(--accent); }
+  .progress-step.active { background: rgba(200,169,110,0.5); }
+  .progress-labels {
+    display: flex;
+    margin-top: 0.6rem;
+  }
+  .progress-label {
+    flex: 1;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.3s;
+    cursor: pointer;
+  }
+  .progress-label.done, .progress-label.active { color: var(--accent); }
+
+  /* ── Layout ── */
+  .form-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  /* ── Sections ── */
+  .form-section {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .form-section:nth-child(1) { animation-delay: 0.05s; }
+  .form-section:nth-child(2) { animation-delay: 0.1s; }
+  .form-section:nth-child(3) { animation-delay: 0.15s; }
+  .form-section:nth-child(4) { animation-delay: 0.2s; }
+  .form-section:nth-child(5) { animation-delay: 0.25s; }
+  .form-section:nth-child(6) { animation-delay: 0.3s; }
+  .form-section:nth-child(7) { animation-delay: 0.35s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    padding: 1.1rem 1.5rem;
+    background: var(--paper-warm);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-icon {
+    width: 28px; height: 28px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    flex: 1;
+  }
+  .section-toggle {
+    font-size: 1rem;
+    color: var(--ink-mute);
+    transition: transform 0.3s;
+  }
+  .section-body { padding: 1.5rem; }
+  .section-body.collapsed { display: none; }
+
+  /* ── Grid ── */
+  .grid { display: grid; gap: 1rem; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 560px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+  .col-span-2 { grid-column: span 2; }
+  @media (max-width: 560px) { .col-span-2 { grid-column: span 1; } }
+
+  /* ── Fields ── */
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .field label .req { color: var(--accent-deep); margin-left: 2px; }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--border-focus);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
+  }
+  .field input.error,
+  .field select.error,
+  .field textarea.error {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(185,64,64,0.1);
+  }
+  .field .field-error {
+    font-size: 0.72rem;
+    color: var(--error);
+    display: none;
+  }
+  .field input.error ~ .field-error,
+  .field select.error ~ .field-error,
+  .field textarea.error ~ .field-error { display: block; }
+
+  .field textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+  .field select { cursor: pointer; padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+  }
+
+  /* ── Radio/Checkbox group ── */
+  .choice-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.2rem; }
+  .choice-btn {
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .choice-btn:hover { border-color: var(--accent); color: var(--ink); }
+  .choice-btn.selected {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--accent);
+  }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 1.5rem 0 1rem;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-mute);
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── Info box ── */
+  .info-box {
+    background: var(--accent-light);
+    border: 1px solid rgba(200,169,110,0.3);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Signature ── */
+  .sig-canvas-wrap {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    overflow: hidden;
+    position: relative;
+  }
+  .sig-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: 120px;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .sig-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    gap: 0.4rem;
+  }
+  .sig-placeholder.hidden { display: none; }
+  .sig-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.4rem;
+  }
+  .sig-clear {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.04em;
+    text-decoration: underline;
+  }
+  .sig-clear:hover { color: var(--error); }
+
+  /* ── Auth text ── */
+  .auth-text {
+    font-size: 0.8rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── Submit area ── */
+  .submit-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0 0;
+  }
+  .submit-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--accent);
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(200,169,110,0.3);
+  }
+  .submit-btn:hover {
+    background: var(--accent-deep);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(160,129,62,0.4);
+    transform: translateY(-1px);
+  }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-note {
+    font-size: 0.75rem;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+
+  /* ── Success screen ── */
+  #success-screen {
+    display: none;
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.8rem;
+  }
+  .success-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+  .success-sub { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.65; margin-bottom: 2rem; }
+  .success-ref {
+    display: inline-block;
+    font-family: 'DM Sans', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--accent-light);
+    border: 1px solid rgba(200,169,110,0.4);
+    border-radius: 4px;
+    padding: 0.4rem 1rem;
+    color: var(--accent-deep);
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+  }
+  .reset-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-mute);
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--ink); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">Rental Application Form</div>
+    <h1 class="header-title">Apply for<br>Your New Home</h1>
+    <div class="header-rule"></div>
+    <p class="header-subtitle">Complete all sections accurately. Your information is kept confidential and used solely for screening purposes.</p>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-inner">
+      <div class="progress-steps">
+        <div class="progress-step active" id="ps1"></div>
+        <div class="progress-step" id="ps2"></div>
+        <div class="progress-step" id="ps3"></div>
+        <div class="progress-step" id="ps4"></div>
+        <div class="progress-step" id="ps5"></div>
+        <div class="progress-step" id="ps6"></div>
+      </div>
+      <div class="progress-labels">
+        <div class="progress-label active" id="pl1" onclick="goToSection(1)">Property</div>
+        <div class="progress-label" id="pl2" onclick="goToSection(2)">Personal</div>
+        <div class="progress-label" id="pl3" onclick="goToSection(3)">Employment</div>
+        <div class="progress-label" id="pl4" onclick="goToSection(4)">Rental Hist.</div>
+        <div class="progress-label" id="pl5" onclick="goToSection(5)">References</div>
+        <div class="progress-label" id="pl6" onclick="goToSection(7)">Finalize</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<form id="rental-form" novalidate>
+<div class="form-container" id="form-body">
+
+  <!-- SECTION 1: PROPERTY -->
+  <div class="form-section" data-section="1">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">1</div>
+      <div class="section-title">Property Information</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="grid grid-2">
+        <div class="field col-span-2">
+          <label>Property Address <span class="req">*</span></label>
+          <input type="text" name="prop_address" placeholder="123 Maple Street" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Unit / Apt #</label>
+          <input type="text" name="prop_unit" placeholder="Unit 4B">
+        </div>
+        <div class="field">
+          <label>City, State, ZIP <span class="req">*</span></label>
+          <input type="text" name="prop_city" placeholder="Atlanta, GA 30301" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Desired Move-in Date <span class="req">*</span></label>
+          <input type="date" name="move_in" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Lease Term</label>
+          <select name="lease_term">
+            <option value="">Select…</option>
+            <option>Month-to-Month</option>
+            <option>6 Months</option>
+            <option>12 Months</option>
+            <option>24 Months</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: PERSONAL -->
+  <div class="form-section" data-section="2">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">2</div>
+      <div class="section-title">Personal Information</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" name="first_name" placeholder="Jane" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" name="last_name" placeholder="Smith" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Date of Birth <span class="req">*</span></label>
+          <input type="date" name="dob" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Social Security # (last 4)</label>
+          <input type="text" name="ssn" placeholder="••••" maxlength="4" pattern="\d{4}">
+        </div>
+        <div class="field">
+          <label>Phone (Primary) <span class="req">*</span></label>
+          <input type="tel" name="phone_primary" placeholder="(555) 000-0000" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Phone (Secondary)</label>
+          <input type="tel" name="phone_secondary" placeholder="(555) 000-0000">
+        </div>
+        <div class="field col-span-2">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="jane@example.com" required>
+          <span class="field-error">Valid email required</span>
+        </div>
+        <div class="field col-span-2">
+          <label>Current Address <span class="req">*</span></label>
+          <input type="text" name="curr_address" placeholder="456 Oak Avenue, Atlanta, GA 30302" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Time at Current Address</label>
+          <input type="text" name="curr_duration" placeholder="e.g. 2 years 4 months">
+        </div>
+        <div class="field">
+          <label>Reason for Moving</label>
+          <input type="text" name="move_reason" placeholder="e.g. Closer to work">
+        </div>
+        <div class="field">
+          <label>Government ID Type</label>
+          <select name="id_type">
+            <option value="">Select…</option>
+            <option>Driver's License</option>
+            <option>State ID</option>
+            <option>Passport</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ID Number</label>
+          <input type="text" name="id_number" placeholder="ID number">
+        </div>
+      </div>
+
+      <div class="divider">Additional Occupants</div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Total # of Occupants</label>
+          <input type="number" name="occupants" min="1" max="20" placeholder="1">
+        </div>
+        <div class="field">
+          <label>Ages of Minor Children</label>
+          <input type="text" name="children_ages" placeholder="e.g. 5, 8, 12">
+        </div>
+      </div>
+
+      <div class="divider">Pets</div>
+      <div class="field" style="margin-bottom:0.75rem;">
+        <label>Do you have pets?</label>
+        <div class="choice-group" id="pets-group">
+          <button type="button" class="choice-btn" onclick="selectChoice('pets-group','No')">No</button>
+          <button type="button" class="choice-btn" onclick="selectChoice('pets-group','Yes')">Yes</button>
+        </div>
+        <input type="hidden" name="has_pets" id="has_pets_val">
+      </div>
+      <div class="field" id="pet-desc-field" style="display:none;">
+        <label>Pet Description</label>
+        <input type="text" name="pet_desc" placeholder="Breed, weight, age (e.g. Labrador, 45 lbs, 3 years)">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: EMPLOYMENT -->
+  <div class="form-section" data-section="3">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">3</div>
+      <div class="section-title">Employment & Income</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Employer Name <span class="req">*</span></label>
+          <input type="text" name="employer" placeholder="Acme Corp" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Job Title</label>
+          <input type="text" name="job_title" placeholder="Senior Manager">
+        </div>
+        <div class="field">
+          <label>Employer Phone</label>
+          <input type="tel" name="emp_phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="field">
+          <label>Start Date</label>
+          <input type="date" name="emp_start">
+        </div>
+        <div class="field">
+          <label>Employment Type</label>
+          <select name="emp_type">
+            <option value="">Select…</option>
+            <option>Full-Time</option>
+            <option>Part-Time</option>
+            <option>Self-Employed</option>
+            <option>Contract</option>
+            <option>Retired</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Gross Annual Income ($) <span class="req">*</span></label>
+          <input type="number" name="annual_income" placeholder="65000" min="0" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field col-span-2">
+          <label>Employer Address</label>
+          <input type="text" name="emp_address" placeholder="789 Business Park, Atlanta, GA">
+        </div>
+      </div>
+
+      <div class="divider">Additional Income Sources</div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Source</label>
+          <input type="text" name="add_income_src" placeholder="e.g. Freelance, Rental, Alimony">
+        </div>
+        <div class="field">
+          <label>Monthly Amount ($)</label>
+          <input type="number" name="add_income_amt" placeholder="500" min="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: RENTAL HISTORY -->
+  <div class="form-section" data-section="4">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">4</div>
+      <div class="section-title">Rental History</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="info-box">Please provide your last two rental addresses. If you owned your home, enter the property address and "Owner" as landlord name.</div>
+
+      <div class="divider">Most Recent Residence</div>
+      <div class="grid grid-2">
+        <div class="field col-span-2">
+          <label>Address</label>
+          <input type="text" name="rh1_address" placeholder="123 Previous St, Atlanta, GA">
+        </div>
+        <div class="field">
+          <label>Landlord Name</label>
+          <input type="text" name="rh1_landlord" placeholder="John Doe">
+        </div>
+        <div class="field">
+          <label>Landlord Phone</label>
+          <input type="tel" name="rh1_phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="field">
+          <label>Monthly Rent ($)</label>
+          <input type="number" name="rh1_rent" placeholder="1200" min="0">
+        </div>
+        <div class="field">
+          <label>Dates (From – To)</label>
+          <input type="text" name="rh1_dates" placeholder="Jan 2021 – Present">
+        </div>
+        <div class="field col-span-2">
+          <label>Reason for Leaving</label>
+          <input type="text" name="rh1_reason" placeholder="Moving closer to work">
+        </div>
+      </div>
+
+      <div class="divider">Previous Residence</div>
+      <div class="grid grid-2">
+        <div class="field col-span-2">
+          <label>Address</label>
+          <input type="text" name="rh2_address" placeholder="456 Former Ave, Decatur, GA">
+        </div>
+        <div class="field">
+          <label>Landlord Name</label>
+          <input type="text" name="rh2_landlord" placeholder="Jane Smith">
+        </div>
+        <div class="field">
+          <label>Landlord Phone</label>
+          <input type="tel" name="rh2_phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="field">
+          <label>Monthly Rent ($)</label>
+          <input type="number" name="rh2_rent" placeholder="1000" min="0">
+        </div>
+        <div class="field">
+          <label>Dates (From – To)</label>
+          <input type="text" name="rh2_dates" placeholder="Jun 2018 – Dec 2020">
+        </div>
+        <div class="field col-span-2">
+          <label>Reason for Leaving</label>
+          <input type="text" name="rh2_reason" placeholder="Lease ended">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: REFERENCES -->
+  <div class="form-section" data-section="5">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">5</div>
+      <div class="section-title">Personal References</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="info-box">Provide at least two personal references who are not family members and have known you for 2+ years.</div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Reference 1 – Full Name</label>
+          <input type="text" name="ref1_name" placeholder="Michael Brown">
+        </div>
+        <div class="field">
+          <label>Relationship</label>
+          <input type="text" name="ref1_rel" placeholder="Colleague">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" name="ref1_phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="ref1_email" placeholder="michael@example.com">
+        </div>
+        <div class="field">
+          <label>Reference 2 – Full Name</label>
+          <input type="text" name="ref2_name" placeholder="Sarah Lee">
+        </div>
+        <div class="field">
+          <label>Relationship</label>
+          <input type="text" name="ref2_rel" placeholder="Friend">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" name="ref2_phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="ref2_email" placeholder="sarah@example.com">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: DISCLOSURE -->
+  <div class="form-section" data-section="6">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">6</div>
+      <div class="section-title">Disclosures</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="grid" style="gap:1.2rem;">
+
+        <div class="field">
+          <label>Have you ever been evicted?</label>
+          <div class="choice-group" id="evicted-group">
+            <button type="button" class="choice-btn" onclick="selectChoice('evicted-group','No')">No</button>
+            <button type="button" class="choice-btn" onclick="selectChoice('evicted-group','Yes')">Yes</button>
+          </div>
+          <input type="hidden" name="evicted" id="evicted_val">
+        </div>
+
+        <div class="field">
+          <label>Have you ever filed for bankruptcy?</label>
+          <div class="choice-group" id="bankrupt-group">
+            <button type="button" class="choice-btn" onclick="selectChoice('bankrupt-group','No')">No</button>
+            <button type="button" class="choice-btn" onclick="selectChoice('bankrupt-group','Yes')">Yes</button>
+          </div>
+          <input type="hidden" name="bankrupt" id="bankrupt_val">
+        </div>
+
+        <div class="field">
+          <label>Have you ever been convicted of a felony?</label>
+          <div class="choice-group" id="felony-group">
+            <button type="button" class="choice-btn" onclick="selectChoice('felony-group','No')">No</button>
+            <button type="button" class="choice-btn" onclick="selectChoice('felony-group','Yes')">Yes</button>
+          </div>
+          <input type="hidden" name="felony" id="felony_val">
+        </div>
+
+        <div class="field">
+          <label>Do you smoke?</label>
+          <div class="choice-group" id="smoke-group">
+            <button type="button" class="choice-btn" onclick="selectChoice('smoke-group','No')">No</button>
+            <button type="button" class="choice-btn" onclick="selectChoice('smoke-group','Yes')">Yes</button>
+          </div>
+          <input type="hidden" name="smoker" id="smoker_val">
+        </div>
+
+        <div class="field">
+          <label>If Yes to any above, please explain</label>
+          <textarea name="disclosure_explain" placeholder="Provide any relevant details…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: SIGNATURE -->
+  <div class="form-section" data-section="7">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">7</div>
+      <div class="section-title">Authorization & Signature</div>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p class="auth-text">
+        I authorize the landlord and/or property manager to verify the information provided in this application,
+        including credit history, employment, income, rental history, and personal references.
+        I certify that all statements made herein are true and complete. I understand that any
+        false, misleading, or incomplete information may result in denial of this application or
+        termination of tenancy. I consent to a background and credit check being performed.
+      </p>
+      <div class="grid grid-2">
+        <div class="field col-span-2">
+          <label>Signature <span class="req">*</span></label>
+          <div class="sig-canvas-wrap" id="sig-wrap">
+            <canvas id="sig-canvas"></canvas>
+            <div class="sig-placeholder" id="sig-placeholder">
+              <span>✍</span> Sign here with mouse or finger
+            </div>
+          </div>
+          <div class="sig-actions">
+            <button type="button" class="sig-clear" onclick="clearSignature()">Clear signature</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Date <span class="req">*</span></label>
+          <input type="date" name="sig_date" id="sig_date" required>
+          <span class="field-error">Required</span>
+        </div>
+        <div class="field">
+          <label>Full Legal Name <span class="req">*</span></label>
+          <input type="text" name="legal_name" placeholder="As it appears on your ID" required>
+          <span class="field-error">Required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-area">
+    <button type="submit" class="submit-btn">Submit Application →</button>
+    <p class="submit-note">Your information is transmitted securely and treated confidentially.</p>
+  </div>
+
+</div><!-- /form-container -->
+
+<!-- Success screen -->
+<div id="success-screen">
+  <div class="success-icon">✓</div>
+  <h2 class="success-title">Application Submitted</h2>
+  <p class="success-sub">Thank you for your application. We'll review your information and be in touch within 2–3 business days.</p>
+  <div class="success-ref" id="success-ref">REF-000000</div>
+  <button class="reset-btn" onclick="resetForm()">Submit Another Application</button>
+</div>
+</form>
+</main>
+
+<script>
+// ── Section toggle ──────────────────────────────────────────────────────────
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.section-toggle');
+  body.classList.toggle('collapsed');
+  toggle.style.transform = body.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
+}
+
+// ── Progress label navigation ──────────────────────────────────────────────
+function goToSection(num) {
+  const section = document.querySelector(`.form-section[data-section="${num}"]`);
+  if (!section) return;
+
+  const body = section.querySelector('.section-body');
+  const toggle = section.querySelector('.section-toggle');
+
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    if (toggle) toggle.style.transform = '';
+  }
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Choice buttons ──────────────────────────────────────────────────────────
+function selectChoice(groupId, value) {
+  document.querySelectorAll(`#${groupId} .choice-btn`).forEach(b => {
+    b.classList.toggle('selected', b.textContent === value);
+  });
+  const map = { 'pets-group': 'has_pets_val', 'evicted-group': 'evicted_val',
+    'bankrupt-group': 'bankrupt_val', 'felony-group': 'felony_val', 'smoke-group': 'smoker_val' };
+  const hiddenId = map[groupId];
+  if (hiddenId) document.getElementById(hiddenId).value = value;
+  if (groupId === 'pets-group') {
+    document.getElementById('pet-desc-field').style.display = value === 'Yes' ? 'flex' : 'none';
+  }
+}
+
+// ── Signature canvas ────────────────────────────────────────────────────────
+const canvas = document.getElementById('sig-canvas');
+const ctx = canvas.getContext('2d');
+let drawing = false, hasSig = false;
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = 120 * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = '#1a1a2e';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+}
+
+canvas.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove', e => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); setSigState(true); });
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); setSigState(true); }, { passive: false });
+canvas.addEventListener('touchend', () => drawing = false);
+
+function setSigState(signed) {
+  hasSig = signed;
+  document.getElementById('sig-placeholder').classList.toggle('hidden', signed);
+}
+
+function clearSignature() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  setSigState(false);
+}
+
+// ── Progress update ─────────────────────────────────────────────────────────
+function updateProgress() {
+  const sections = document.querySelectorAll('.form-section');
+  let filled = 0;
+  sections.forEach((sec, i) => {
+    const inputs = sec.querySelectorAll('input[required], select[required]');
+    const allFilled = [...inputs].every(inp => inp.value.trim() !== '');
+    if (allFilled && inputs.length > 0) {
+      filled = i + 1;
+      document.getElementById(`ps${i+1}`)?.classList.add('done');
+      document.getElementById(`pl${i+1}`)?.classList.add('done');
+    } else {
+      document.getElementById(`ps${i+1}`)?.classList.toggle('active', i === filled);
+      document.getElementById(`pl${i+1}`)?.classList.toggle('active', i === filled);
+    }
+  });
+}
+
+document.getElementById('rental-form').addEventListener('input', updateProgress);
+
+// Set today's date
+document.getElementById('sig_date').valueAsDate = new Date();
+
+// ── Validation & submit ─────────────────────────────────────────────────────
+document.getElementById('rental-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  let valid = true;
+
+  this.querySelectorAll('[required]').forEach(inp => {
+    const empty = inp.value.trim() === '';
+    inp.classList.toggle('error', empty);
+    if (empty) { valid = false; if (inp.closest('.section-body.collapsed')) toggleSection(inp.closest('.form-section').querySelector('.section-header')); }
+  });
+
+  if (!hasSig) {
+    document.getElementById('sig-wrap').style.border = '1.5px solid var(--error)';
+    valid = false;
+  } else {
+    document.getElementById('sig-wrap').style.border = '';
+  }
+
+  if (!valid) {
+    document.querySelector('.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // Collect all form data
+  const formData = new FormData(this);
+  // Add signature as base64 image
+  formData.append('signature_image', canvas.toDataURL('image/png'));
+
+  // Show loading state
+  const btn = this.querySelector('.submit-btn');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('https://formspree.io/f/mkopwbnn', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      const ref = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
+      document.getElementById('success-ref').textContent = ref;
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const data = await response.json();
+      alert('Submission failed: ' + (data?.errors?.map(e => e.message).join(', ') || 'Please try again.'));
+      btn.textContent = 'Submit Application →';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Network error. Please check your connection and try again.');
+    btn.textContent = 'Submit Application →';
+    btn.disabled = false;
+  }
+});
+
+function resetForm() {
+  document.getElementById('rental-form').reset();
+  clearSignature();
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('pet-desc-field').style.display = 'none';
+  document.getElementById('form-body').style.display = 'block';
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('sig_date').valueAsDate = new Date();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
