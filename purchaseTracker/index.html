@@ -19,7 +19,6 @@
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
 
-  /* Lock screen */
   #lock-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
   .lock-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem 2rem; width: 100%; max-width: 380px; box-shadow: var(--shadow-md); text-align: center; }
   .lock-logo { width: 52px; height: 52px; background: var(--accent); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
@@ -37,10 +36,8 @@
   .lock-hint { font-size: 11px; color: var(--text3); margin-top: 14px; line-height: 1.6; }
   .lock-hint strong { color: var(--text2); }
 
-  /* App */
   #app { display: none; }
 
-  /* Header */
   header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); flex-wrap: wrap; }
   .logo-mark { width: 36px; height: 36px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .logo-mark svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -48,7 +45,6 @@
   .header-titles p { font-size: 13px; color: var(--text2); margin-top: 1px; }
   .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-  /* Drive status */
   .gdrive-status { display: flex; align-items: center; gap: 7px; font-size: 13px; }
   .gdrive-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; transition: background 0.3s; }
   .gdrive-dot.connected { background: #34a853; }
@@ -56,11 +52,13 @@
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.35} }
   #gdrive-status-text { color: var(--text2); font-size: 12px; }
 
-  /* GDrive open button — only shown when connected */
   #gdrive-open-btn { display: none; }
   #gdrive-open-btn.visible { display: inline-flex; }
 
-  /* Main */
+  /* Google Sheets button */
+  .btn-sheets { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+  .btn-sheets:hover { background: #d0edda; }
+
   .main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 2rem; }
   .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; box-shadow: var(--shadow); }
@@ -72,13 +70,11 @@
   .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text2); margin-bottom: 12px; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
 
-  /* Drive panel */
   .gdrive-panel { background: var(--accent-light); border: 1px solid #b2d8c4; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: none; }
   .gdrive-panel.visible { display: block; }
   .gdrive-panel-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .gdrive-panel-row p { font-size: 13px; color: var(--accent-text); flex: 1; min-width: 160px; }
 
-  /* Form */
   .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field.span2 { grid-column: span 2; }
@@ -89,7 +85,6 @@
   textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
   select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6760' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
-  /* Combo box */
   .combo-wrap { position: relative; }
   .combo-wrap input { padding-right: 32px; }
   .combo-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text2); }
@@ -102,7 +97,6 @@
   .combo-item.add-new:hover { background: var(--accent-light); }
   .combo-empty { padding: 9px 12px; font-size: 13px; color: var(--text3); font-style: italic; }
 
-  /* Upload */
   .upload-zone { border: 2px dashed var(--border2); border-radius: var(--radius-sm); padding: 1.25rem; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; }
   .upload-zone:hover, .upload-zone.drag { background: var(--accent-light); border-color: var(--accent); }
   .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; border: none; box-shadow: none; }
@@ -121,7 +115,6 @@
   .receipt-rm { pointer-events: all; background: none; border: 1px solid var(--border2); border-radius: 4px; font-size: 11px; cursor: pointer; color: var(--danger); padding: 3px 8px; margin-top: 4px; }
   .receipt-rm:hover { background: var(--danger-light); }
 
-  /* Buttons */
   .form-actions { display: flex; gap: 10px; margin-top: 1.25rem; flex-wrap: wrap; align-items: center; }
   .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; white-space: nowrap; text-decoration: none; }
   .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -137,7 +130,6 @@
   .btn-danger:hover { background: var(--danger-light); }
   .err-msg { font-size: 12px; color: var(--danger); margin-top: 8px; display: none; }
 
-  /* Table */
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
   .toolbar input, .toolbar select { width: auto; flex: 1; min-width: 140px; max-width: 240px; }
   .tbl-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); }
@@ -161,7 +153,6 @@
   .edit-td input, .edit-td select, .edit-td textarea { font-size: 12px; padding: 5px 8px; }
   .edit-td textarea { min-height: 52px; }
 
-  /* Modal */
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(10,10,8,0.7); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-bg.open { display: flex; }
   .modal-inner { background: var(--surface); border-radius: var(--radius); padding: 1rem; max-width: 92vw; max-height: 92vh; overflow: auto; position: relative; box-shadow: var(--shadow-md); }
@@ -169,7 +160,6 @@
   .modal-close { position: absolute; top: 8px; right: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 50%; width: 28px; height: 28px; font-size: 14px; cursor: pointer; color: var(--text2); display: flex; align-items: center; justify-content: center; }
   .modal-close:hover { background: var(--border); }
 
-  /* Toast */
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 500; z-index: 9999; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap; }
   #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -220,6 +210,12 @@
         <span id="gdrive-status-text">Not connected</span>
       </div>
 
+      <!-- Google Sheets button -->
+      <a class="btn btn-sheets btn-sm" href="https://sheets.google.com" target="_blank" rel="noopener" title="Open Google Sheets">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        Sheets
+      </a>
+
       <!-- "Go to GDrive" — only visible when connected -->
       <a id="gdrive-open-btn" class="btn btn-gdrive-open btn-sm" href="https://drive.google.com" target="_blank" rel="noopener">
         <svg width="13" height="13" viewBox="0 0 87 72" fill="none"><path d="M29.08 0L0 50.4h29.08L58.16 0z" fill="#0066DA"/><path d="M58.16 0L29.08 50.4h29.08L87 0z" fill="#00AC47"/><path d="M0 50.4L14.54 72H72.46L87 50.4z" fill="#FFBA00"/></svg>
@@ -259,8 +255,6 @@
     <p class="section-title">New Purchase</p>
     <div class="card">
       <div class="form-grid">
-
-        <!-- Store Name: combo box -->
         <div class="field">
           <label>Store Name *</label>
           <div class="combo-wrap" id="store-combo-wrap">
@@ -277,7 +271,6 @@
           <select id="f-category"><option value="">— select —</option><option>Office Supplies</option><option>Equipment</option><option>Materials</option><option>Maintenance</option><option>Utilities</option><option>Travel</option><option>Meals</option><option>Software</option><option>Other</option></select>
         </div>
 
-        <!-- Property: strict dropdown -->
         <div class="field span2">
           <label>Property Purchased For</label>
           <select id="f-property">
@@ -356,50 +349,21 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-// ╔══════════════════════════════════════════════════════════════╗
-//  CONFIGURATION  ← Edit everything in this section
-// ╚══════════════════════════════════════════════════════════════╝
-
 const APP_PASSWORD     = 'WeS76Lee%%';
 const GDRIVE_CLIENT_ID = '19954086503-0651kh0js1olfbp2dv15t9u22jnc9jor.apps.googleusercontent.com';
 
-// ── Properties dropdown ──────────────────────────────────────
-//  Add, remove, or edit the property addresses below.
-//  Each entry shows up in the "Property Purchased For" dropdown.
 const PROPERTY_LIST = [
   '123 Main St – Anniston, AL',
   '456 Oak Ave – Anniston, AL',
   '789 Elm Rd – Rome, GA',
   '321 Pine St – Gadsden, AL',
-  // Add more properties here ↓
 ];
 
-// ── Store names (combo box seed list) ───────────────────────
-//  These appear as suggestions when typing in the Store Name field.
-//  Users can also type any name not on this list and it will be
-//  accepted as-is, or saved to the list for the session.
 const STORE_LIST_DEFAULT = [
-  'Home Depot',
-  'Lowe\'s',
-  'Menards',
-  'Walmart',
-  'Sam\'s Club',
-  'Costco',
-  'Amazon',
-  'Ace Hardware',
-  'Harbor Freight',
-  'Tractor Supply',
-  'AutoZone',
-  'O\'Reilly Auto Parts',
-  'Sherwin-Williams',
-  'Ferguson',
-  'Fastenal',
-  // Add more stores here ↓
+  'Home Depot','Lowe\'s','Menards','Walmart','Sam\'s Club','Costco','Amazon',
+  'Ace Hardware','Harbor Freight','Tractor Supply','AutoZone','O\'Reilly Auto Parts',
+  'Sherwin-Williams','Ferguson','Fastenal',
 ];
-
-// ╚══════════════════════════════════════════════════════════════╝
-//  END CONFIGURATION — don't edit below unless you know JS
-// ╚══════════════════════════════════════════════════════════════╝
 
 const STORAGE_KEY   = 'biz_purchases_v1';
 const STORES_KEY    = 'biz_stores_v1';
@@ -409,126 +373,89 @@ const GDRIVE_FILE   = 'business-purchases.json';
 
 let entries = [], editId = null, pendingReceipt = null;
 let gdriveFileId = null, gdriveConnected = false, tokenClient = null;
-let gdriveUrl = 'https://drive.google.com'; // updated to folder URL once connected
-
-// Runtime store list (seed + anything added this session / from localStorage)
+let gdriveUrl = 'https://drive.google.com';
 let storeList = [];
 
 function loadStores() {
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORES_KEY)) || []; } catch { return []; } })();
-  const merged = [...new Set([...STORE_LIST_DEFAULT, ...saved])];
-  storeList = merged.sort((a, b) => a.localeCompare(b));
+  storeList = [...new Set([...STORE_LIST_DEFAULT, ...saved])].sort((a, b) => a.localeCompare(b));
 }
 function saveStores() {
-  // Persist only additions beyond the default list
   const extras = storeList.filter(s => !STORE_LIST_DEFAULT.includes(s));
   try { localStorage.setItem(STORES_KEY, JSON.stringify(extras)); } catch {}
 }
 function addStoreToList(name) {
   const n = name.trim();
   if (!n || storeList.some(s => s.toLowerCase() === n.toLowerCase())) return;
-  storeList.push(n);
-  storeList.sort((a, b) => a.localeCompare(b));
-  saveStores();
+  storeList.push(n); storeList.sort((a, b) => a.localeCompare(b)); saveStores();
 }
 
-// ── Populate property dropdown ────────────────────────────────
 function populatePropertyDropdown() {
   const sel = document.getElementById('f-property');
   sel.innerHTML = '<option value="">— select property —</option>';
-  PROPERTY_LIST.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    sel.appendChild(opt);
-  });
+  PROPERTY_LIST.forEach(p => { const opt = document.createElement('option'); opt.value = p; opt.textContent = p; sel.appendChild(opt); });
 }
 
-// ── Combo box logic ───────────────────────────────────────────
 let comboActiveIdx = { store: -1 };
-
 function comboItems(id) {
   const q = document.getElementById('f-' + id).value.trim().toLowerCase();
   const list = id === 'store' ? storeList : [];
   return q ? list.filter(s => s.toLowerCase().includes(q)) : list;
 }
-
 function comboRender(id) {
   const el = document.getElementById(id + '-combo-list');
   const q  = document.getElementById('f-' + id).value.trim();
   const items = comboItems(id);
   const idx = comboActiveIdx[id];
-
   if (!items.length && !q) { el.innerHTML = ''; el.classList.remove('open'); return; }
-
   let html = '';
   if (!items.length) {
     html = `<div class="combo-item add-new" onclick="comboAddNew('${id}')">＋ Add "${esc(q)}"</div>`;
   } else {
-    html = items.map((s, i) =>
-      `<div class="combo-item${i === idx ? ' active' : ''}" onclick="comboSelect('${id}','${esc(s)}')">${esc(s)}</div>`
-    ).join('');
-    // Show "add new" option if typed value doesn't exactly match any item
+    html = items.map((s, i) => `<div class="combo-item${i === idx ? ' active' : ''}" onclick="comboSelect('${id}','${esc(s)}')">${esc(s)}</div>`).join('');
     const exactMatch = items.some(s => s.toLowerCase() === q.toLowerCase());
-    if (q && !exactMatch) {
-      html += `<div class="combo-item add-new" onclick="comboAddNew('${id}')">＋ Add "${esc(q)}"</div>`;
-    }
+    if (q && !exactMatch) html += `<div class="combo-item add-new" onclick="comboAddNew('${id}')">＋ Add "${esc(q)}"</div>`;
   }
-  el.innerHTML = html;
-  el.classList.add('open');
+  el.innerHTML = html; el.classList.add('open');
 }
-
 function comboFilter(id) { comboActiveIdx[id] = -1; comboRender(id); }
 function comboOpen(id)   { comboRender(id); }
-
-function comboSelect(id, val) {
-  document.getElementById('f-' + id).value = val;
-  document.getElementById(id + '-combo-list').classList.remove('open');
-  comboActiveIdx[id] = -1;
-}
-
+function comboSelect(id, val) { document.getElementById('f-' + id).value = val; document.getElementById(id + '-combo-list').classList.remove('open'); comboActiveIdx[id] = -1; }
 function comboAddNew(id) {
   const val = document.getElementById('f-' + id).value.trim();
   if (!val) return;
   if (id === 'store') addStoreToList(val);
-  comboSelect(id, val);
-  toast(`"${val}" added to store list`);
+  comboSelect(id, val); toast(`"${val}" added to store list`);
 }
-
 function comboKey(e, id) {
-  const el   = document.getElementById(id + '-combo-list');
+  const el = document.getElementById(id + '-combo-list');
   const items = comboItems(id);
-  const total = items.length + (document.getElementById('f-' + id).value.trim() ? 1 : 0); // +1 for add-new
+  const total = items.length + (document.getElementById('f-' + id).value.trim() ? 1 : 0);
   if (!el.classList.contains('open')) { if (e.key === 'ArrowDown') comboOpen(id); return; }
   if (e.key === 'ArrowDown')  { e.preventDefault(); comboActiveIdx[id] = Math.min(comboActiveIdx[id] + 1, total - 1); comboRender(id); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); comboActiveIdx[id] = Math.max(comboActiveIdx[id] - 1, -1); comboRender(id); }
   else if (e.key === 'Enter') {
     e.preventDefault();
     const i = comboActiveIdx[id];
-    if (i >= 0 && i < items.length) { comboSelect(id, items[i]); }
-    else if (i === items.length)    { comboAddNew(id); }
+    if (i >= 0 && i < items.length) comboSelect(id, items[i]);
+    else if (i === items.length) comboAddNew(id);
     else { const v = document.getElementById('f-' + id).value.trim(); if (v) comboSelect(id, v); }
   }
   else if (e.key === 'Escape') { el.classList.remove('open'); }
 }
-
-// Close combo on outside click
 document.addEventListener('click', e => {
   ['store'].forEach(id => {
     const wrap = document.getElementById(id + '-combo-wrap');
-    if (wrap && !wrap.contains(e.target)) {
-      document.getElementById(id + '-combo-list').classList.remove('open');
-    }
+    if (wrap && !wrap.contains(e.target)) document.getElementById(id + '-combo-list').classList.remove('open');
   });
 });
 
-// ── Password ──────────────────────────────
 function unlock() {
   if (document.getElementById('pw-input').value === APP_PASSWORD) {
     sessionStorage.setItem(SESSION_KEY, '1');
     document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    loadLocal(); loadStores(); populatePropertyDropdown();
-    updateMetrics(); render(); initGdrive();
+    loadLocal(); loadStores(); populatePropertyDropdown(); updateMetrics(); render(); initGdrive();
   } else {
     const e = document.getElementById('lock-err'); e.style.display = 'block';
     document.getElementById('pw-input').value = '';
@@ -536,19 +463,12 @@ function unlock() {
     setTimeout(() => e.style.display = 'none', 3000);
   }
 }
-function lockApp() {
-  sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('lock-screen').style.display = 'flex';
-  document.getElementById('pw-input').value = '';
-}
+function lockApp() { sessionStorage.removeItem(SESSION_KEY); document.getElementById('app').style.display = 'none'; document.getElementById('lock-screen').style.display = 'flex'; document.getElementById('pw-input').value = ''; }
 function togglePw() { const i = document.getElementById('pw-input'); i.type = i.type === 'password' ? 'text' : 'password'; }
 
-// ── Local storage ─────────────────────────
 function loadLocal() { try { entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { entries = []; } }
 function saveLocal() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch(e) { console.warn(e); } }
 
-// ── Google Drive ──────────────────────────
 function initGdrive() {
   if (!GDRIVE_CLIENT_ID || GDRIVE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') return;
   gapi.load('client', async () => {
@@ -559,20 +479,15 @@ function initGdrive() {
         if (resp.error) { toast('Google sign-in failed.'); return; }
         let email = '';
         try { const r = await gapi.client.request({ path: 'https://www.googleapis.com/oauth2/v3/userinfo' }); email = r.result.email || ''; } catch {}
-        setConnected(true, email);
-        await gdriveFindOrCreate();
+        setConnected(true, email); await gdriveFindOrCreate();
       }
     });
   });
 }
 function gdriveAction() {
-  if (!GDRIVE_CLIENT_ID || GDRIVE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
-    alert('Google Drive is not configured yet.\n\nSteps to enable it:\n1. Visit console.cloud.google.com\n2. Create a project and enable the Google Drive API\n3. Create OAuth 2.0 credentials (Web application type)\n4. Add your website URL under "Authorized JavaScript origins"\n5. Copy your Client ID and paste it into this file where it says GDRIVE_CLIENT_ID');
-    return;
-  }
+  if (!GDRIVE_CLIENT_ID || GDRIVE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') { alert('Google Drive is not configured yet.'); return; }
   if (!gdriveConnected) tokenClient.requestAccessToken({ prompt: 'consent' });
 }
-
 function setConnected(on, email) {
   gdriveConnected = on;
   document.getElementById('gdrive-dot').className = 'gdrive-dot' + (on ? ' connected' : '');
@@ -582,17 +497,9 @@ function setConnected(on, email) {
     : `<svg width="14" height="14" viewBox="0 0 87 72" fill="none"><path d="M29.08 0L0 50.4h29.08L58.16 0z" fill="#0066DA"/><path d="M58.16 0L29.08 50.4h29.08L87 0z" fill="#00AC47"/><path d="M0 50.4L14.54 72H72.46L87 50.4z" fill="#FFBA00"/></svg> Connect Google Drive`;
   document.getElementById('gdrive-panel').className = 'gdrive-panel' + (on ? ' visible' : '');
   if (on && email) document.getElementById('gdrive-panel-msg').innerHTML = `Connected as <strong>${email}</strong>. Data saves automatically on every change.`;
-
-  // "Go to GDrive" button — only visible when connected
   const openBtn = document.getElementById('gdrive-open-btn');
-  if (on) {
-    openBtn.classList.add('visible');
-    openBtn.href = gdriveUrl;
-  } else {
-    openBtn.classList.remove('visible');
-  }
+  if (on) { openBtn.classList.add('visible'); openBtn.href = gdriveUrl; } else { openBtn.classList.remove('visible'); }
 }
-
 function gdriveDisconnect() {
   try { google.accounts.oauth2.revoke(gapi.client.getToken()?.access_token, () => {}); } catch {}
   gapi.client.setToken(null); gdriveConnected = false; gdriveFileId = null; setConnected(false, ''); toast('Disconnected from Google Drive');
@@ -603,14 +510,10 @@ async function gdriveFindOrCreate() {
     const list = await gapi.client.drive.files.list({ q: `name='${GDRIVE_FILE}' and trashed=false`, fields: 'files(id,webViewLink)', spaces: 'drive' });
     if (list.result.files.length > 0) {
       gdriveFileId = list.result.files[0].id;
-      // Build a direct folder link (opens Drive root; file link requires extra permission)
       if (list.result.files[0].webViewLink) gdriveUrl = list.result.files[0].webViewLink;
       document.getElementById('gdrive-open-btn').href = gdriveUrl;
       await gdriveLoad();
-    } else {
-      await gdriveSave();
-      toast('New Drive file created: ' + GDRIVE_FILE);
-    }
+    } else { await gdriveSave(); toast('New Drive file created: ' + GDRIVE_FILE); }
   } catch(e) { toast('Drive error: ' + e.message); }
   setSyncing(false);
 }
@@ -643,13 +546,9 @@ async function gdriveLoad() {
 }
 function setSyncing(on) { document.getElementById('gdrive-dot').className = 'gdrive-dot' + (on ? ' syncing' : (gdriveConnected ? ' connected' : '')); }
 
-// ── Toast ─────────────────────────────────
 function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); }
-
-// ── Date default ──────────────────────────
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 
-// ── Drag & drop ───────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const dz = document.getElementById('drop-zone');
   if (!dz) return;
@@ -682,7 +581,6 @@ function clearReceipt() {
   document.getElementById('f-receipt').value = '';
 }
 
-// ── Form ──────────────────────────────────
 function showErr(msg) { const e = document.getElementById('form-err'); e.textContent = msg; e.style.display = msg ? 'block' : 'none'; }
 function addEntry() {
   const store = document.getElementById('f-store').value.trim();
@@ -692,7 +590,6 @@ function addEntry() {
   if (!date)  { showErr('Date is required.'); return; }
   if (isNaN(amt) || amt < 0) { showErr('Please enter a valid amount.'); return; }
   showErr('');
-  // Persist any new store name typed in
   addStoreToList(store);
   entries.unshift({ id: Date.now(), store, date, amount: amt,
     category: document.getElementById('f-category').value,
@@ -740,7 +637,6 @@ function handleEditFile(file) {
 }
 function clearEditReceipt() { window._editReceipt = null; const el = document.getElementById('edit-rcpt-preview'); if (el) el.innerHTML = noThumb(); }
 
-// ── Thumbnails & modal ────────────────────
 function thumbHTML(rc) {
   if (!rc) return noThumb();
   if (rc.type && rc.type.startsWith('image/')) return `<img class="tbl-thumb" src="${rc.data}" onclick="openModal('${rc.data}')" alt="receipt">`;
@@ -751,7 +647,6 @@ function openModal(src) { document.getElementById('modal-img').src = src; docume
 function openPDF(src) { window.open(src, '_blank'); }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
-// ── Metrics ───────────────────────────────
 function updateMetrics() {
   const total = entries.reduce((s, e) => s + e.amount, 0);
   document.getElementById('m-total').textContent = '$' + total.toFixed(2);
@@ -762,7 +657,6 @@ function updateMetrics() {
   document.getElementById('m-avg').textContent = entries.length ? '$' + (total / entries.length).toFixed(2) : '$0.00';
 }
 
-// ── Table ─────────────────────────────────
 const catColors = {
   'Office Supplies': {bg:'#EBF3FF',text:'#1a4a8a'}, 'Equipment': {bg:'#F0EEFF',text:'#3d2d9e'},
   'Materials':       {bg:'#E8F7F0',text:'#1a5c3e'}, 'Maintenance': {bg:'#FEF6E4',text:'#7a4a0a'},
@@ -833,12 +727,10 @@ function exportCSV() {
   const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([head.join(','), ...rows].join('\n')); a.download = 'purchases.csv'; a.click();
 }
 
-// ── Boot ──────────────────────────────────
 if (sessionStorage.getItem(SESSION_KEY)) {
   document.getElementById('lock-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  loadLocal(); loadStores(); populatePropertyDropdown();
-  updateMetrics(); render(); initGdrive();
+  loadLocal(); loadStores(); populatePropertyDropdown(); updateMetrics(); render(); initGdrive();
 }
 </script>
 </body>
