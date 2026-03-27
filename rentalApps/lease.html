@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WLGRE · Lease Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ─────────────────────────────────────────── */
+:root {
+  --ink: #1a1a18; --paper: #f7f4ef; --paper-dark: #ede9e0;
+  --accent: #2b4c3f; --accent-light: #3d6b5a; --accent-muted: #e8f0ed;
+  --gold: #c49a3c; --border: #c8c0b0; --red: #b94040;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:#e8e4dc;color:var(--ink);min-height:100vh;}
+
+/* ── PASSWORD GATE ──────────────────────────────────────────── */
+#gate {
+  position:fixed;inset:0;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+#gate.hidden{display:none;}
+.gate-card{
+  background:var(--paper);border-radius:8px;
+  padding:56px 52px 48px;max-width:420px;width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);text-align:center;
+}
+.gate-logo{
+  font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
+  color:var(--accent);letter-spacing:0.04em;margin-bottom:4px;
+}
+.gate-logo span{color:var(--gold);}
+.gate-sub{font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:#aaa;margin-bottom:36px;}
+.gate-label{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:#888;font-weight:500;display:block;text-align:left;margin-bottom:6px;}
+.gate-input-wrap{position:relative;margin-bottom:10px;}
+.gate-input{
+  width:100%;padding:13px 44px 13px 14px;
+  border:1.5px solid var(--border);border-radius:4px;
+  font-size:0.92rem;font-family:'IBM Plex Sans',sans-serif;
+  background:white;color:var(--ink);
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.gate-input:focus{outline:none;border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(61,107,90,0.12);}
+.gate-input.error{border-color:var(--red);animation:shake 0.3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px)};}
+.gate-eye{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:#bbb;font-size:1rem;padding:4px;
+  transition:color 0.2s;
+}
+.gate-eye:hover{color:var(--accent);}
+.gate-error{font-size:0.75rem;color:var(--red);margin-bottom:16px;min-height:18px;text-align:left;}
+.gate-btn{
+  width:100%;padding:14px;background:var(--accent);color:white;
+  border:none;border-radius:4px;font-family:'IBM Plex Sans',sans-serif;
+  font-size:0.88rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;transition:background 0.2s,transform 0.1s;
+}
+.gate-btn:hover{background:var(--accent-light);}
+.gate-btn:active{transform:scale(0.99);}
+.gate-btn:disabled{background:#ccc;cursor:not-allowed;}
+.gate-hint{font-size:0.7rem;color:#bbb;margin-top:20px;line-height:1.6;}
+.gate-hint code{font-family:'IBM Plex Mono',monospace;background:var(--paper-dark);padding:1px 5px;border-radius:3px;color:#888;}
+
+/* ── MAIN APP (hidden until unlocked) ──────────────────────── */
+#app{display:none;}
+#app.unlocked{display:block;}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.site-header{
+  background:var(--accent);color:white;padding:16px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.2);
+}
+.brand{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.04em;color:white;text-decoration:none;}
+.brand span{color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:16px;}
+.phase-indicator{display:flex;align-items:center;gap:8px;}
+.phase-dot{
+  width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.5);font-size:0.65rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;transition:all 0.3s;
+}
+.phase-dot.active{background:var(--gold);color:var(--accent);}
+.phase-dot.done{background:rgba(255,255,255,0.3);color:white;}
+.phase-line{width:24px;height:1px;background:rgba(255,255,255,0.2);}
+.progress-bar-wrap{display:flex;align-items:center;gap:10px;font-size:0.72rem;color:rgba(255,255,255,0.6);}
+.progress-bar{width:140px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;width:0%;}
+.lock-btn{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+  color:rgba(255,255,255,0.7);padding:6px 12px;border-radius:4px;
+  font-family:'IBM Plex Sans',sans-serif;font-size:0.72rem;cursor:pointer;
+  transition:all 0.2s;letter-spacing:0.04em;
+}
+.lock-btn:hover{background:rgba(255,255,255,0.2);color:white;}
+
+/* ── PHASE 1 FORM ───────────────────────────────────────────── */
+#phase1{padding:48px 20px 80px;}
+.setup-wrapper{max-width:720px;margin:0 auto;background:var(--paper);border-radius:8px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.12);}
+
+/* Landlord banner */
+.landlord-banner{
+  background:var(--accent);padding:0;
+}
+.landlord-banner-head{
+  padding:44px 48px 0;
+}
+.landlord-banner-head .eyebrow{font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:10px;}
+.landlord-banner-head h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;margin-bottom:4px;color:white;}
+.landlord-banner-head p{font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:28px;}
+.landlord-info-strip{
+  margin:0 48px;padding:20px 24px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:6px;margin-bottom:36px;
+  display:grid;grid-template-columns:auto 1fr 1fr;gap:20px;align-items:center;
+}
+.ll-badge{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--gold);color:var(--accent);
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.ll-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:white;margin-bottom:3px;}
+.ll-addr{font-size:0.76rem;color:rgba(255,255,255,0.55);}
+.ll-contacts{display:flex;flex-direction:column;gap:4px;}
+.ll-contact-item{font-size:0.76rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:6px;}
+.ll-contact-item .lbl{font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);min-width:36px;}
+.locked-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+  border-radius:20px;padding:3px 10px;font-size:0.62rem;
+  color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:28px;margin-left:48px;
+}
+
+.setup-body{padding:36px 48px 48px;}
+.form-section{margin-bottom:32px;}
+.form-section-title{font-size:0.65rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-light);font-weight:600;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--paper-dark);}
+.form-grid{display:grid;gap:14px;}
+.form-grid.cols2{grid-template-columns:1fr 1fr;}
+.form-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+.span2{grid-column:1/-1;}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-group label{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#888;font-weight:500;}
+.field-group label .req{color:var(--red);margin-left:2px;}
+.field-group input,.field-group select,.field-group textarea{
+  padding:10px 13px;border:1.5px solid var(--border);border-radius:4px;
+  font-size:0.88rem;font-family:'IBM Plex Sans',sans-serif;
+  background:white;color:var(--ink);transition:border-color 0.2s,box-shadow 0.2s;
+  appearance:none;
+}
+.field-group select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{outline:none;border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(61,107,90,0.1);}
+.field-group textarea{resize:vertical;min-height:70px;line-height:1.5;}
+.field-hint{font-size:0.7rem;color:#aaa;}
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;}
+.radio-btn{display:flex;align-items:center;gap:7px;padding:9px 14px;border:1.5px solid var(--border);border-radius:4px;cursor:pointer;font-size:0.82rem;color:#666;transition:all 0.18s;background:white;user-select:none;}
+.radio-btn input{display:none;}
+.radio-btn.selected{border-color:var(--accent);background:var(--accent-muted);color:var(--accent);font-weight:500;}
+.generate-btn{width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:4px;font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.2s,transform 0.1s;margin-top:8px;}
+.generate-btn:hover{background:var(--accent-light);}
+.generate-btn:active{transform:scale(0.99);}
+
+/* ── PHASE 2 DOCUMENT ───────────────────────────────────────── */
+#phase2{display:none;padding:0 0 80px;}
+.edit-banner{background:#fdf6ec;border-bottom:1px solid #e8d8b0;padding:11px 40px;display:flex;align-items:center;justify-content:space-between;font-size:0.78rem;color:#7a5a1a;}
+.edit-banner button{padding:6px 16px;background:var(--accent);color:white;border:none;border-radius:4px;font-family:inherit;font-size:0.75rem;font-weight:500;cursor:pointer;}
+.edit-banner button:hover{background:var(--accent-light);}
+.doc-wrapper{max-width:860px;margin:48px auto 0;padding:0 20px;}
+.cover{background:var(--accent);color:white;border-radius:4px 4px 0 0;padding:60px 64px 52px;position:relative;overflow:hidden;}
+.cover::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);}
+.cover-label{font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:16px;}
+.cover h1{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;line-height:1.15;margin-bottom:28px;}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.12);}
+.cover-meta-item label{font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;}
+.cover-meta-item .val{font-size:0.95rem;color:white;}
+.section-card{background:var(--paper);border-left:1px solid var(--border);border-right:1px solid var(--border);opacity:0;transform:translateY(12px);transition:opacity 0.4s ease,transform 0.4s ease;}
+.section-card.visible{opacity:1;transform:none;}
+.section-card:last-of-type{border-radius:0 0 4px 4px;border-bottom:1px solid var(--border);}
+.section-header{display:flex;align-items:center;gap:16px;padding:22px 40px 18px;border-bottom:1px solid var(--paper-dark);cursor:pointer;user-select:none;background:var(--paper);transition:background 0.2s;}
+.section-header:hover{background:var(--paper-dark);}
+.section-num{width:30px;height:30px;border-radius:50%;background:var(--accent);color:white;font-size:0.72rem;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'IBM Plex Mono',monospace;}
+.section-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;color:var(--ink);flex:1;}
+.section-chevron{color:var(--border);font-size:1rem;transition:transform 0.25s;}
+.section-card.open .section-chevron{transform:rotate(180deg);}
+.section-body{max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1);}
+.section-card.open .section-body{max-height:4000px;}
+.section-inner{padding:28px 40px 36px;}
+.clause{display:flex;gap:20px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--paper-dark);}
+.clause:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.clause-num{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--accent-light);min-width:24px;padding-top:3px;}
+.clause-text{font-size:0.88rem;line-height:1.75;color:#2e2e2a;}
+.clause-text strong{font-weight:500;color:var(--ink);}
+.v{color:var(--accent-light);font-weight:500;}
+.hl{background:var(--accent-muted);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;padding:14px 18px;margin:18px 0;font-size:0.84rem;line-height:1.7;color:var(--accent);}
+.hl.warn{background:#fdf6ec;border-color:var(--gold);color:#7a5a1a;}
+.parties-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.party-card{background:var(--paper-dark);border:1px solid var(--border);border-radius:4px;padding:18px 20px;}
+.party-role{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-light);font-weight:500;margin-bottom:8px;}
+.party-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;margin-bottom:8px;}
+.party-detail{font-size:0.78rem;color:#666;line-height:1.8;}
+.terms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0;}
+.term-item{background:var(--paper-dark);border:1px solid var(--border);border-radius:4px;padding:16px 18px;text-align:center;}
+.term-label{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:#999;margin-bottom:6px;display:block;}
+.term-value{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--accent);}
+.term-sub{font-size:0.68rem;color:#888;margin-top:3px;}
+.sig-section{background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--accent);padding:48px 40px;}
+.sig-section h2{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:4px;}
+.sig-subtitle{font-size:0.8rem;color:#888;margin-bottom:32px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;}
+.sig-party-role{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-light);font-weight:500;margin-bottom:5px;}
+.sig-party-name{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;margin-bottom:14px;}
+.sig-pad-wrap{border:1.5px solid var(--border);border-radius:4px;background:white;overflow:hidden;position:relative;margin-bottom:10px;}
+.sig-pad-label{position:absolute;top:10px;left:12px;font-size:0.62rem;color:#ccc;letter-spacing:0.1em;text-transform:uppercase;pointer-events:none;transition:opacity 0.2s;}
+canvas.sig-canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none;}
+.sig-canvas.signed ~ .sig-pad-label{opacity:0;}
+.sig-actions{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+.sig-clear-btn{font-size:0.7rem;color:#bbb;background:none;border:none;cursor:pointer;padding:3px 0;font-family:inherit;transition:color 0.2s;}
+.sig-clear-btn:hover{color:var(--red);}
+.sig-date{font-size:0.72rem;color:#999;font-family:'IBM Plex Mono',monospace;}
+.sig-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.sig-fields .field-group label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;font-weight:500;margin-bottom:4px;display:block;}
+.sig-fields .field-group input{padding:9px 11px;font-size:0.82rem;border:1.5px solid var(--border);border-radius:4px;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;}
+.sig-fields .field-group input:focus{outline:none;border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(61,107,90,0.1);}
+.agree-row{display:flex;align-items:flex-start;gap:12px;margin:24px 0;padding:18px;background:var(--paper-dark);border-radius:4px;border:1px solid var(--border);}
+.agree-row input[type=checkbox]{margin-top:2px;width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.agree-row label{font-size:0.81rem;line-height:1.65;color:#555;cursor:pointer;}
+.agree-row label strong{color:var(--ink);font-weight:500;}
+.submit-btn{width:100%;padding:17px;background:var(--accent);color:white;border:none;border-radius:4px;font-family:'IBM Plex Sans',sans-serif;font-size:0.88rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.2s,transform 0.1s;}
+.submit-btn:hover{background:var(--accent-light);}
+.submit-btn:active{transform:scale(0.99);}
+.submit-btn:disabled{background:#ccc;cursor:not-allowed;}
+.success-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,24,0.65);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.success-overlay.show{display:flex;}
+.success-card{background:var(--paper);border-radius:8px;padding:56px 52px;max-width:480px;width:90%;text-align:center;animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{opacity:0;transform:scale(0.88);}to{opacity:1;transform:scale(1);}}
+.success-icon{width:60px;height:60px;border-radius:50%;background:var(--accent);color:white;font-size:1.6rem;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.success-card h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:10px;}
+.success-card p{font-size:0.83rem;color:#777;line-height:1.7;margin-bottom:24px;}
+.success-ref{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;background:var(--paper-dark);padding:8px 16px;border-radius:4px;color:var(--accent);display:inline-block;margin-bottom:24px;}
+.success-print-btn{padding:11px 26px;background:var(--accent);color:white;border:none;border-radius:4px;font-family:inherit;font-size:0.83rem;font-weight:500;cursor:pointer;}
+.success-print-btn:hover{background:var(--accent-light);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:640px){
+  .form-grid.cols2,.form-grid.cols3{grid-template-columns:1fr;}
+  .landlord-info-strip{grid-template-columns:1fr;margin:0 24px;margin-bottom:24px;}
+  .landlord-banner-head{padding:32px 24px 0;}
+  .locked-badge{margin-left:24px;}
+  .setup-body{padding:28px 24px 36px;}
+  .cover{padding:40px 24px 36px;} .cover h1{font-size:1.7rem;} .cover-meta{grid-template-columns:1fr;}
+  .section-header{padding:18px 20px 14px;} .section-inner{padding:20px 20px 28px;}
+  .parties-grid,.sig-grid{grid-template-columns:1fr;} .terms-grid{grid-template-columns:1fr 1fr;}
+  .sig-section{padding:32px 20px;} .sig-fields{grid-template-columns:1fr;}
+  .site-header{padding:12px 16px;} .edit-banner{padding:10px 16px;}
+}
+@media print{
+  #gate,#app .site-header,.edit-banner,.sig-actions,.agree-row,.submit-btn{display:none!important;}
+  body{background:white;} .section-body{max-height:none!important;} #phase2{display:block!important;}
+  .doc-wrapper{margin-top:0;} .section-card{opacity:1;transform:none;border:none;}
+  .section-card:last-of-type{border:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PASSWORD GATE
+══════════════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo"><span>WL</span>GRE</div>
+    <div class="gate-sub">Lease Manager · Restricted Access</div>
+    <label class="gate-label" for="pwInput">Password</label>
+    <div class="gate-input-wrap">
+      <input class="gate-input" type="password" id="pwInput" placeholder="Enter password" autocomplete="current-password">
+      <button class="gate-eye" onclick="togglePw()" id="eyeBtn" title="Show/hide">👁</button>
+    </div>
+    <div class="gate-error" id="gateError"></div>
+    <button class="gate-btn" id="gateBtn" onclick="checkPassword()">Unlock →</button>
+    <div class="gate-hint">
+      Default password: <code>wlgre2026</code><br>
+      To change it, update the <code>PW_HASH</code> constant in the script.<br>
+      Generate a new hash at <code>sha256.io</code>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════ -->
+<div id="app">
+
+<header class="site-header">
+  <a class="brand" href="#"><span>WL</span>GRE · Lease Manager</a>
+  <div class="header-right">
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="dot1">1</div>
+      <div class="phase-line"></div>
+      <div class="phase-dot" id="dot2">2</div>
+    </div>
+    <div class="progress-bar-wrap" id="progressWrap" style="display:none;">
+      <span id="progressLabel">Reviewing…</span>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <button class="lock-btn" onclick="lockApp()">🔒 Lock</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════
+     PHASE 1 — SETUP FORM
+═══════════════════════════════ -->
+<div id="phase1">
+<div class="setup-wrapper">
+
+  <!-- LANDLORD (hardcoded, read-only display) -->
+  <div class="landlord-banner">
+    <div class="landlord-banner-head">
+      <div class="eyebrow">Wes Lee Group Real Estate</div>
+      <h2>New Lease Setup</h2>
+      <p>Fill in tenant details and lease terms below. Landlord information is fixed and will auto-populate.</p>
+    </div>
+    <div class="landlord-info-strip">
+      <div class="ll-badge">WL</div>
+      <div>
+        <div class="ll-name">Wes Lee Group, LLC</div>
+        <div class="ll-addr">225 Main St #1502, Hiram, GA 30141</div>
+      </div>
+      <div class="ll-contacts">
+        <div class="ll-contact-item"><span class="lbl">Phone</span>(404) 410-0290</div>
+        <div class="ll-contact-item"><span class="lbl">Email</span>concerns@wlgre.com</div>
+      </div>
+    </div>
+    <div class="locked-badge">🔒 Landlord info locked</div>
+  </div>
+
+  <div class="setup-body">
+
+    <!-- PROPERTY -->
+    <div class="form-section">
+      <div class="form-section-title">Rental Property</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label>Select Property <span class="req">*</span></label>
+          <select id="f_property">
+            <option value="">— Choose a property —</option>
+            <optgroup label="Centerbrooke Drive, Anniston AL 36206">
+              <option value="5405 Centerbrooke Dr, Anniston, AL 36206">5405 Centerbrooke Dr</option>
+              <option value="5410 Centerbrooke Dr, Anniston, AL 36206">5410 Centerbrooke Dr</option>
+              <option value="5414 Centerbrooke Dr, Anniston, AL 36206">5414 Centerbrooke Dr</option>
+            </optgroup>
+            <optgroup label="Willow Pointe Drive, Anniston AL 36206">
+              <option value="831 Willow Pointe Dr, Anniston, AL 36206">831 Willow Pointe Dr</option>
+              <option value="833 Willow Pointe Dr, Anniston, AL 36206">833 Willow Pointe Dr</option>
+              <option value="835 Willow Pointe Dr, Anniston, AL 36206">835 Willow Pointe Dr</option>
+              <option value="837 Willow Pointe Dr, Anniston, AL 36206">837 Willow Pointe Dr</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TENANT -->
+    <div class="form-section">
+      <div class="form-section-title">Tenant Information</div>
+      <div class="form-grid cols2">
+        <div class="field-group span2">
+          <label>Tenant Full Name <span class="req">*</span></label>
+          <input type="text" id="f_tenantName" placeholder="First Last">
+        </div>
+        <div class="field-group">
+          <label>Tenant Phone</label>
+          <input type="tel" id="f_tenantPhone" placeholder="(xxx) xxx-xxxx">
+        </div>
+        <div class="field-group">
+          <label>Tenant Email</label>
+          <input type="email" id="f_tenantEmail" placeholder="email@domain.com">
+        </div>
+      </div>
+    </div>
+
+    <!-- LEASE DATES -->
+    <div class="form-section">
+      <div class="form-section-title">Lease Dates</div>
+      <div class="form-grid cols2">
+        <div class="field-group">
+          <label>Lease Date (as written) <span class="req">*</span></label>
+          <input type="date" id="f_leaseDate">
+        </div>
+        <div class="field-group">
+          <label>Written Notice to Terminate (days)</label>
+          <input type="number" id="f_noticeDays" value="30" min="1">
+        </div>
+        <div class="field-group">
+          <label>Lease Start Date <span class="req">*</span></label>
+          <input type="date" id="f_leaseStart">
+        </div>
+        <div class="field-group">
+          <label>Lease End Date <span class="req">*</span></label>
+          <input type="date" id="f_leaseEnd">
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCIALS -->
+    <div class="form-section">
+      <div class="form-section-title">Financial Terms</div>
+      <div class="form-grid cols3">
+        <div class="field-group">
+          <label>Monthly Rent ($) <span class="req">*</span></label>
+          <input type="number" id="f_rent" placeholder="1100" min="0" step="50">
+        </div>
+        <div class="field-group">
+          <label>Security Deposit ($) <span class="req">*</span></label>
+          <input type="number" id="f_deposit" placeholder="1100" min="0" step="50">
+        </div>
+        <div class="field-group">
+          <label>Lawn Care ($/mo)</label>
+          <input type="number" id="f_lawn" value="35" min="0" step="5">
+          <span class="field-hint">Set 0 to omit clause</span>
+        </div>
+        <div class="field-group">
+          <label>Rent Due Day</label>
+          <input type="number" id="f_dueDay" value="1" min="1" max="28">
+        </div>
+        <div class="field-group">
+          <label>Late Fee After Day</label>
+          <input type="number" id="f_lateDay" value="5" min="1" max="28">
+        </div>
+        <div class="field-group">
+          <label>Late Fee (%)</label>
+          <input type="number" id="f_latePct" value="10" min="1" max="100">
+        </div>
+        <div class="field-group">
+          <label>Returned Check Fee ($)</label>
+          <input type="number" id="f_nsfFee" value="40" min="0" step="5">
+        </div>
+        <div class="field-group">
+          <label>Deposit Return (days)</label>
+          <input type="number" id="f_depositDays" value="60" min="1" max="90">
+        </div>
+        <div class="field-group">
+          <label>Landlord Repair Threshold ($)</label>
+          <input type="number" id="f_repairThreshold" value="100" min="0" step="25">
+          <span class="field-hint">Landlord pays above this</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- POLICIES -->
+    <div class="form-section">
+      <div class="form-section-title">Property Policies</div>
+      <div class="form-grid cols2">
+        <div class="field-group">
+          <label>Pets</label>
+          <div class="radio-group" id="rg_pets">
+            <label class="radio-btn selected" onclick="selRadio('rg_pets',this)"><input type="radio" name="pets" value="No">Not Allowed</label>
+            <label class="radio-btn" onclick="selRadio('rg_pets',this)"><input type="radio" name="pets" value="written">With Written Permission</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Smoking</label>
+          <div class="radio-group" id="rg_smoking">
+            <label class="radio-btn selected" onclick="selRadio('rg_smoking',this)"><input type="radio" name="smoking" value="No">Not Allowed</label>
+            <label class="radio-btn" onclick="selRadio('rg_smoking',this)"><input type="radio" name="smoking" value="Outside">Outside Only</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Max Guest Stay</label>
+          <input type="text" id="f_guestLimit" value="one week">
+        </div>
+        <div class="field-group">
+          <label>Entry Notice Required</label>
+          <input type="text" id="f_entryNotice" value="48 hours">
+        </div>
+        <div class="field-group">
+          <label>Tenant Absence Threshold (days)</label>
+          <input type="number" id="f_absenceDays" value="4" min="1">
+        </div>
+        <div class="field-group">
+          <label>Payment Portal / Method</label>
+          <input type="text" id="f_paymentPortal" value="TenantCloud (www.tenantcloud.com)">
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDITIONAL CLAUSES -->
+    <div class="form-section">
+      <div class="form-section-title">Additional Clauses (optional)</div>
+      <div class="form-grid">
+        <div class="field-group">
+          <label>Additional Terms</label>
+          <textarea id="f_additionalClauses" placeholder="Any extra provisions for this specific lease…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generateLease()">Generate Lease Document →</button>
+  </div>
+</div>
+</div><!-- /phase1 -->
+
+<!-- ═══════════════════════════════
+     PHASE 2 — LEASE DOCUMENT
+═══════════════════════════════ -->
+<div id="phase2">
+  <div class="edit-banner">
+    <span>✎ Variables shown in <span style="color:var(--accent-light);font-weight:600;">green</span> — review before sending to tenant.</span>
+    <button onclick="goBack()">← Edit Details</button>
+  </div>
+  <div class="doc-wrapper">
+
+    <div class="cover">
+      <div class="cover-label">Wes Lee Group Real Estate · WLGRE</div>
+      <h1>Residential Lease<br>Agreement</h1>
+      <div class="cover-meta">
+        <div class="cover-meta-item"><label>Property</label><div class="val" id="cv_property">—</div></div>
+        <div class="cover-meta-item"><label>Lease Term</label><div class="val" id="cv_term">—</div></div>
+        <div class="cover-meta-item"><label>Monthly Rent</label><div class="val" id="cv_rent">—</div></div>
+        <div class="cover-meta-item"><label>Security Deposit</label><div class="val" id="cv_deposit">—</div></div>
+      </div>
+    </div>
+
+    <!-- SEC 1: PARTIES -->
+    <div class="section-card" id="sec1">
+      <div class="section-header" onclick="tog('sec1')"><div class="section-num">01</div><div class="section-title">Parties to the Agreement</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="parties-grid">
+          <div class="party-card">
+            <div class="party-role">Landlord</div>
+            <div class="party-name">Wes Lee Group, LLC</div>
+            <div class="party-detail">225 Main St #1502<br>Hiram, GA 30141<br>(404) 410-0290<br>concerns@wlgre.com</div>
+          </div>
+          <div class="party-card">
+            <div class="party-role">Tenant</div>
+            <div class="party-name"><span class="v" id="p_tenantName">—</span></div>
+            <div class="party-detail"><span id="p_propertyAddr">—</span><br><span id="p_tenantPhone">—</span><br><span id="p_tenantEmail">—</span></div>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:#888;line-height:1.7;">IN CONSIDERATION of the Landlord leasing certain premises to the Tenant and other valuable consideration, the receipt and sufficiency of which is hereby acknowledged, the Parties agree to the terms set forth in this Agreement, dated <span class="v" id="p_leaseDate">—</span>.</p>
+      </div></div>
+    </div>
+
+    <!-- SEC 2: PROPERTY & TERM -->
+    <div class="section-card" id="sec2">
+      <div class="section-header" onclick="tog('sec2')"><div class="section-num">02</div><div class="section-title">Leased Property &amp; Term</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="terms-grid">
+          <div class="term-item"><span class="term-label">Start Date</span><div class="term-value v" id="t_start">—</div></div>
+          <div class="term-item"><span class="term-label">End Date</span><div class="term-value v" id="t_end">—</div></div>
+          <div class="term-item"><span class="term-label">Notice Period</span><div class="term-value v" id="t_notice">—</div><div class="term-sub">days written</div></div>
+        </div>
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text">The Landlord agrees to rent to the Tenant the residential property described as <strong class="v" id="c2_addr">—</strong> (the "Property"), for use as residential premises only.</div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text">The term commences at <strong>12:00 noon on <span class="v" id="c2_start">—</span></strong> and ends on <strong class="v" id="c2_end">—</strong>. If not renewed in writing, the lease converts to a <strong>month-to-month tenancy</strong> under the same terms unless terminated with <strong class="v" id="c2_notice">—</strong> days' written notice.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text">No persons other than the Tenant and Tenant's immediate family may reside in the Property without prior written permission. Guests may not stay longer than <strong class="v" id="c2_guest">—</strong> without written consent.</div></div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text">Tenant is entitled to the exclusive use of available parking on or about the Property.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 3: RENT & FEES -->
+    <div class="section-card" id="sec3">
+      <div class="section-header" onclick="tog('sec3')"><div class="section-num">03</div><div class="section-title">Rent, Fees &amp; Security Deposit</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="hl warn"><strong>Payment:</strong> Rent must be paid through <strong class="v" id="c3_portal">—</strong>. Cash payments are <strong>NOT accepted</strong>.</div>
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text">Monthly rent is <strong class="v" id="c3_rent">—</strong>, due on the <strong class="v" id="c3_dueDay">—</strong> day of each month.</div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text">If rent is not received by 11:59 PM on the <strong class="v" id="c3_lateDay">—</strong> of the month, a late fee of <strong class="v" id="c3_lateFee">—</strong> (<span class="v" id="c3_latePct">—</span>% of monthly rent) applies per occurrence.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text">A returned check fee of <strong class="v" id="c3_nsf">—</strong> will be charged for each NSF check.</div></div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text">A security deposit of <strong class="v" id="c3_deposit">—</strong> is required. The deposit will be returned within <strong class="v" id="c3_depDays">—</strong> days following the move-out inspection, less any damages.</div></div>
+        <div class="clause"><div class="clause-num">5</div><div class="clause-text">All sums payable by Tenant shall be deemed additional rent and may be recovered as rental arrears.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 4: HOUSE RULES -->
+    <div class="section-card" id="sec4">
+      <div class="section-header" onclick="tog('sec4')"><div class="section-num">04</div><div class="section-title">Property Rules &amp; Restrictions</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text"><strong>Smoking:</strong> <span class="v" id="c4_smoking">—</span></div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text"><strong>Vaping:</strong> Tenant and household members will not vape anywhere in the Property, nor permit guests to vape.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text"><strong>Pets:</strong> <span class="v" id="c4_pets">—</span></div></div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text"><strong>No Illegal Activity:</strong> Illegal trade, activity, or drugs are strictly prohibited on or about the Property.</div></div>
+        <div class="clause"><div class="clause-num">5</div><div class="clause-text"><strong>No Business Use:</strong> No commercial activity without prior written approval from the Landlord.</div></div>
+        <div class="clause"><div class="clause-num">6</div><div class="clause-text"><strong>No Subletting:</strong> Assigning or subletting is not allowed. Violations may result in immediate termination.</div></div>
+        <div class="clause"><div class="clause-num">7</div><div class="clause-text"><strong>Cleanliness:</strong> Tenant shall keep the immediate area around the unit free of litter, debris, and similar items.</div></div>
+        <div class="clause"><div class="clause-num">8</div><div class="clause-text"><strong>Locks:</strong> Locks may not be added, removed, or modified without prior written consent.</div></div>
+        <div class="clause"><div class="clause-num">9</div><div class="clause-text"><strong>Alterations:</strong> No unauthorized painting, repairs, or modifications without Landlord's written consent.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 5: MAINTENANCE -->
+    <div class="section-card" id="sec5">
+      <div class="section-header" onclick="tog('sec5')"><div class="section-num">05</div><div class="section-title">Maintenance &amp; Utilities</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text">Tenant will, at sole expense, keep the Property in good and sanitary condition throughout the lease term.</div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text">Major repairs not caused by Tenant's misuse with costs exceeding <strong class="v" id="c5_threshold">—</strong> per incident shall be the Landlord's responsibility.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text">Repairs to plumbing, range, heating, electric, and gas fixtures resulting from Tenant's misuse or neglect are at Tenant's expense.</div></div>
+        <div class="clause" id="c5_lawn_clause"><div class="clause-num">4</div><div class="clause-text"><strong>Lawn Maintenance:</strong> Tenant is responsible for lawn care, included in rent at <strong class="v" id="c5_lawn">—</strong>/month.</div></div>
+        <div class="clause"><div class="clause-num" id="c5_util_num">5</div><div class="clause-text"><strong>Utilities:</strong> Tenant is responsible for all utilities unless otherwise stated in writing.</div></div>
+        <div class="clause"><div class="clause-num">6</div><div class="clause-text">Tenant will promptly notify Landlord of any damage or situation interfering with normal use of the Property.</div></div>
+        <div class="clause"><div class="clause-num">7</div><div class="clause-text">Parties will use reasonable efforts to prevent moisture accumulation and mold. Tenant will notify Landlord in writing of any moisture or visible mold immediately.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 6: ENTRY -->
+    <div class="section-card" id="sec6">
+      <div class="section-header" onclick="tog('sec6')"><div class="section-num">06</div><div class="section-title">Entry, Inspections &amp; Repairs</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text">Landlord or agents may enter with at least <strong class="v" id="c6_notice">—</strong> notice for inspection, maintenance, or showings. <strong>No notice required in emergencies.</strong></div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text">Parties will complete, sign, and date an inspection report at the beginning and end of tenancy.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text">Quarterly inspections occur in months 3, 6, and 9 with at least <strong class="v" id="c6_notice2">—</strong> notice. Landlord will enter if Tenant is unavailable.</div></div>
+        <div class="hl"><strong>Repair contacts:</strong> Urgent — <strong>(404) 410-0290</strong> &nbsp;|&nbsp; Non-urgent — <strong>concerns@wlgre.com</strong>. Landlord provides <span class="v" id="c6_notice3">—</span> notice for scheduled repair visits.</div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text">If Property is unoccupied for <strong class="v" id="c6_absence">—</strong> or more consecutive days, Tenant will arrange inspections and notify Landlord of that person's contact information.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 7: INSURANCE -->
+    <div class="section-card" id="sec7">
+      <div class="section-header" onclick="tog('sec7')"><div class="section-num">07</div><div class="section-title">Insurance, Damage &amp; Liability</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="hl warn"><strong>Note:</strong> Tenant's personal property is <strong>not insured by the Landlord</strong>. Renters insurance is strongly recommended.</div>
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text">Landlord assumes no liability for damage to or loss of Tenant's personal property.</div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text">Tenant is not responsible for insuring Landlord's contents, furnishings, or the building structure.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text">Tenant is responsible for obtaining <strong>liability insurance</strong> for the benefit of both Parties.</div></div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text">If the Property is damaged through no fault of the Tenant and Landlord elects not to repair, Landlord may terminate with appropriate notice.</div></div>
+      </div></div>
+    </div>
+
+    <!-- SEC 8: LEGAL -->
+    <div class="section-card" id="sec8">
+      <div class="section-header" onclick="tog('sec8')"><div class="section-num">08</div><div class="section-title">Default, Termination &amp; Legal Provisions</div><div class="section-chevron">▾</div></div>
+      <div class="section-body"><div class="section-inner">
+        <div class="clause"><div class="clause-num">1</div><div class="clause-text"><strong>Default:</strong> Landlord may terminate upon Tenant breach with written notice per applicable landlord-tenant law.</div></div>
+        <div class="clause"><div class="clause-num">2</div><div class="clause-text"><strong>Quiet Enjoyment:</strong> <span class="v" id="c8_tenant">—</span>, upon paying rent and performing all covenants, shall peaceably enjoy the Property. Tenant shall not commit waste, nuisance, or disturb other occupants.</div></div>
+        <div class="clause"><div class="clause-num">3</div><div class="clause-text"><strong>Surrender:</strong> At expiration, Tenant will vacate the Property in as good condition as at commencement, reasonable wear and tear excepted.</div></div>
+        <div class="clause"><div class="clause-num">4</div><div class="clause-text"><strong>Severability:</strong> If any provision conflicts with applicable law, it will be amended as necessary. Remaining provisions stay in full force.</div></div>
+        <div class="clause"><div class="clause-num">5</div><div class="clause-text"><strong>Joint &amp; Several Liability:</strong> Where multiple Tenants sign, all are jointly and severally liable for each other's acts and obligations.</div></div>
+        <div class="clause"><div class="clause-num">6</div><div class="clause-text"><strong>For Sale / For Rent Signs:</strong> During the last 30 days of this Lease, Landlord may display "For Sale," "For Rent," or "Vacancy" signs.</div></div>
+        <div class="clause"><div class="clause-num">7</div><div class="clause-text"><strong>Binding Effect:</strong> This Lease is binding upon and inures to the benefit of the respective heirs, executors, administrators, successors, and assigns of each Party.</div></div>
+        <div class="clause"><div class="clause-num">8</div><div class="clause-text"><strong>Non-Waiver:</strong> Landlord's waiver of any breach shall not operate as a waiver of rights regarding subsequent defaults.</div></div>
+        <div class="clause" id="c8_extra" style="display:none;"><div class="clause-num">9</div><div class="clause-text" id="c8_extra_text"></div></div>
+      </div></div>
+    </div>
+
+    <!-- SIGNATURES -->
+    <div class="sig-section" id="sigSection">
+      <h2>Electronic Signatures</h2>
+      <p class="sig-subtitle">Both parties must sign below. Draw using mouse, finger, or stylus.</p>
+      <div class="sig-grid">
+        <div class="sig-party">
+          <div class="sig-party-role">Landlord</div>
+          <div class="sig-party-name">Wes Lee Group, LLC</div>
+          <div class="sig-pad-wrap"><div class="sig-pad-label">Sign here</div><canvas class="sig-canvas" id="canvasLL" width="400" height="130"></canvas></div>
+          <div class="sig-actions"><button class="sig-clear-btn" onclick="clearSig('canvasLL')">Clear</button><div class="sig-date" id="dateLL"></div></div>
+          <div class="sig-fields">
+            <div class="field-group"><label>Printed Name</label><input type="text" id="sigLLName" value="Wes Lee Group, LLC"></div>
+            <div class="field-group"><label>Date Signed</label><input type="date" id="sigLLDate"></div>
+          </div>
+        </div>
+        <div class="sig-party">
+          <div class="sig-party-role">Tenant</div>
+          <div class="sig-party-name v" id="sig_tn">—</div>
+          <div class="sig-pad-wrap"><div class="sig-pad-label">Sign here</div><canvas class="sig-canvas" id="canvasTN" width="400" height="130"></canvas></div>
+          <div class="sig-actions"><button class="sig-clear-btn" onclick="clearSig('canvasTN')">Clear</button><div class="sig-date" id="dateTN"></div></div>
+          <div class="sig-fields">
+            <div class="field-group"><label>Printed Name</label><input type="text" id="sigTNName"></div>
+            <div class="field-group"><label>Date Signed</label><input type="date" id="sigTNDate"></div>
+          </div>
+        </div>
+      </div>
+      <div class="agree-row">
+        <input type="checkbox" id="agreeCheck">
+        <label for="agreeCheck">By checking this box and signing above, I acknowledge I have read and understood the complete Residential Lease Agreement dated <strong id="ag_date">—</strong> for the property at <strong id="ag_prop">—</strong>. My electronic signature constitutes a legally binding execution of this Agreement.</label>
+      </div>
+      <button class="submit-btn" id="submitBtn" onclick="submitLease()" disabled>Submit Signed Lease Agreement</button>
+    </div>
+
+  </div><!-- /doc-wrapper -->
+</div><!-- /phase2 -->
+
+</div><!-- /app -->
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2>Lease Executed</h2>
+    <p id="successMsg">Both parties have signed.</p>
+    <div class="success-ref" id="successRef">REF: —</div><br>
+    <button class="success-print-btn" onclick="window.print()">Print / Save PDF</button>
+  </div>
+</div>
+
+<script>
+// ── PASSWORD GATE ─────────────────────────────────────────────────
+// SHA-256 hash of "wlgre2026"
+// To change: run sha256("yournewpassword") at sha256.io and replace the string below
+const PW_HASH = '0c9d8bd67ba01cf9f978986174e6ddd7b6429f1b066f6a3559440d6a2c7e47a1';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPassword() {
+  const btn = document.getElementById('gateBtn');
+  const input = document.getElementById('pwInput');
+  const err = document.getElementById('gateError');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+  const hash = await sha256(input.value);
+  if (hash === PW_HASH) {
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').classList.add('unlocked');
+    sessionStorage.setItem('wlgre_auth', '1');
+  } else {
+    input.classList.add('error');
+    err.textContent = 'Incorrect password. Try again.';
+    setTimeout(() => input.classList.remove('error'), 400);
+    btn.disabled = false;
+    btn.textContent = 'Unlock →';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function lockApp() {
+  sessionStorage.removeItem('wlgre_auth');
+  document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('app').classList.remove('unlocked');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('gateError').textContent = '';
+}
+
+function togglePw() {
+  const i = document.getElementById('pwInput');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+// Keep unlocked across same-tab refreshes
+if (sessionStorage.getItem('wlgre_auth') === '1') {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').classList.add('unlocked');
+}
+
+// Enter key on password field
+document.getElementById('pwInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPassword();
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────
+const G = id => document.getElementById(id);
+const S = (id, val) => { const el = G(id); if(el) el.textContent = val; };
+const money = n => '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const ordinal = n => { const s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+const fmtDate = s => { if(!s) return '—'; const d=new Date(s+'T12:00:00'); return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); };
+const fmtShort = s => { if(!s) return '—'; const d=new Date(s+'T12:00:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
+
+// ── RADIO BUTTONS ─────────────────────────────────────────────────
+function selRadio(gid, el) {
+  document.querySelectorAll('#'+gid+' .radio-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function getRadio(name) {
+  const sel = document.querySelector('[id^="rg_'+name+'"] .radio-btn.selected input');
+  return sel ? sel.value : 'No';
+}
+
+// ── GENERATE LEASE ────────────────────────────────────────────────
+function generateLease() {
+  const propVal = G('f_property').value;
+  if (!propVal) { alert('Please select a property.'); G('f_property').focus(); return; }
+  if (!G('f_tenantName').value.trim()) { alert('Please enter the tenant name.'); G('f_tenantName').focus(); return; }
+  if (!G('f_leaseDate').value) { alert('Please enter the lease date.'); G('f_leaseDate').focus(); return; }
+  if (!G('f_leaseStart').value || !G('f_leaseEnd').value) { alert('Please enter lease start and end dates.'); return; }
+
+  const v = {
+    propertyAddress: propVal,
+    tenantName:      G('f_tenantName').value.trim() || 'Tenant',
+    tenantPhone:     G('f_tenantPhone').value.trim() || '—',
+    tenantEmail:     G('f_tenantEmail').value.trim() || '—',
+    leaseDate:       G('f_leaseDate').value,
+    leaseStart:      G('f_leaseStart').value,
+    leaseEnd:        G('f_leaseEnd').value,
+    noticeDays:      G('f_noticeDays').value || '30',
+    rent:            parseFloat(G('f_rent').value) || 0,
+    deposit:         parseFloat(G('f_deposit').value) || 0,
+    lawn:            parseFloat(G('f_lawn').value) || 0,
+    dueDay:          parseInt(G('f_dueDay').value) || 1,
+    lateDay:         parseInt(G('f_lateDay').value) || 5,
+    latePct:         parseFloat(G('f_latePct').value) || 10,
+    nsfFee:          parseFloat(G('f_nsfFee').value) || 40,
+    depositDays:     parseInt(G('f_depositDays').value) || 60,
+    repairThreshold: parseFloat(G('f_repairThreshold').value) || 100,
+    entryNotice:     G('f_entryNotice').value.trim() || '48 hours',
+    absenceDays:     G('f_absenceDays').value || '4',
+    paymentPortal:   G('f_paymentPortal').value.trim() || '—',
+    guestLimit:      G('f_guestLimit').value.trim() || 'one week',
+    pets:            getRadio('pets'),
+    smoking:         getRadio('smoking'),
+    extras:          G('f_additionalClauses').value.trim(),
+  };
+  const lateFee = money(v.rent * v.latePct / 100);
+
+  // COVER
+  G('cv_property').textContent = v.propertyAddress;
+  G('cv_term').innerHTML = fmtShort(v.leaseStart) + ' &ndash; ' + fmtShort(v.leaseEnd);
+  S('cv_rent', money(v.rent) + '/mo');
+  S('cv_deposit', money(v.deposit));
+
+  // SEC 1
+  S('p_tenantName', v.tenantName);
+  S('p_propertyAddr', v.propertyAddress);
+  S('p_tenantPhone', v.tenantPhone);
+  S('p_tenantEmail', v.tenantEmail);
+  S('p_leaseDate', fmtDate(v.leaseDate));
+
+  // SEC 2
+  S('t_start', fmtShort(v.leaseStart)); S('t_end', fmtShort(v.leaseEnd));
+  S('t_notice', v.noticeDays);
+  S('c2_addr', v.propertyAddress); S('c2_start', fmtDate(v.leaseStart));
+  S('c2_end', fmtDate(v.leaseEnd)); S('c2_notice', v.noticeDays);
+  S('c2_guest', v.guestLimit);
+
+  // SEC 3
+  S('c3_portal', v.paymentPortal); S('c3_rent', money(v.rent));
+  S('c3_dueDay', ordinal(v.dueDay)); S('c3_lateDay', ordinal(v.lateDay));
+  S('c3_lateFee', lateFee); S('c3_latePct', v.latePct);
+  S('c3_nsf', money(v.nsfFee)); S('c3_deposit', money(v.deposit));
+  S('c3_depDays', v.depositDays);
+
+  // SEC 4
+  S('c4_smoking', v.smoking === 'No'
+    ? 'Tenant and household members will not smoke anywhere in the Property, nor permit any guests or visitors to smoke.'
+    : 'Smoking is permitted in outdoor areas only. No smoking is allowed inside the Property at any time.');
+  S('c4_pets', v.pets === 'No'
+    ? 'No animals are allowed in or about the Property under any circumstances.'
+    : 'No animals are allowed without revocable written permission from the Landlord.');
+
+  // SEC 5
+  S('c5_threshold', money(v.repairThreshold));
+  if (v.lawn > 0) { S('c5_lawn', money(v.lawn)); G('c5_lawn_clause').style.display = ''; }
+  else { G('c5_lawn_clause').style.display = 'none'; }
+
+  // SEC 6
+  S('c6_notice', v.entryNotice); S('c6_notice2', v.entryNotice); S('c6_notice3', v.entryNotice);
+  S('c6_absence', v.absenceDays);
+
+  // SEC 8
+  S('c8_tenant', v.tenantName);
+  if (v.extras) { G('c8_extra').style.display = ''; G('c8_extra_text').textContent = v.extras; }
+  else G('c8_extra').style.display = 'none';
+
+  // SIGS
+  S('sig_tn', v.tenantName);
+  G('sigTNName').value = v.tenantName;
+  const today = new Date().toISOString().split('T')[0];
+  G('sigLLDate').value = today; G('sigTNDate').value = today;
+
+  S('ag_date', fmtDate(v.leaseDate)); S('ag_prop', v.propertyAddress);
+
+  // SWITCH
+  G('phase1').style.display = 'none'; G('phase2').style.display = 'block';
+  G('progressWrap').style.display = 'flex';
+  G('dot1').classList.remove('active'); G('dot1').classList.add('done'); G('dot2').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(() => {
+    ['sec1','sec2'].forEach(id => { G(id).classList.add('open'); openSecs.add(id); });
+    updateProg(); initCanvases(); observeCards();
+  }, 100);
+}
+
+function goBack() {
+  G('phase1').style.display = 'block'; G('phase2').style.display = 'none';
+  G('progressWrap').style.display = 'none';
+  G('dot1').classList.add('active'); G('dot1').classList.remove('done'); G('dot2').classList.remove('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── ACCORDION ─────────────────────────────────────────────────────
+const SECS = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8'];
+let openSecs = new Set();
+function tog(id) {
+  const c = G(id);
+  openSecs.has(id) ? (c.classList.remove('open'), openSecs.delete(id)) : (c.classList.add('open'), openSecs.add(id));
+  updateProg();
+}
+function updateProg() {
+  G('progressFill').style.width = Math.min((openSecs.size/SECS.length)*85, 100)+'%';
+  G('progressLabel').textContent = openSecs.size===0?'Reviewing…':openSecs.size<4?'Reading sections…':openSecs.size<8?'Almost done…':'Ready to sign';
+}
+function observeCards() {
+  const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } }), {threshold:0.05});
+  document.querySelectorAll('.section-card,.sig-section').forEach(c => obs.observe(c));
+}
+
+// ── SIGNATURE CANVASES ────────────────────────────────────────────
+const signed = {canvasLL:false, canvasTN:false};
+function initCanvases() {
+  ['canvasLL','canvasTN'].forEach(id => {
+    const cv = G(id); if(!cv) return;
+    const ctx = cv.getContext('2d');
+    ctx.strokeStyle='#1a1a18'; ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.lineJoin='round';
+    let on=false,lx=0,ly=0;
+    const pos = e => { const r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height,s=e.touches?e.touches[0]:e; return [(s.clientX-r.left)*sx,(s.clientY-r.top)*sy]; };
+    const down = e => { e.preventDefault(); on=true; [lx,ly]=pos(e); };
+    const move = e => {
+      e.preventDefault(); if(!on) return;
+      const[x,y]=pos(e); ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(x,y); ctx.stroke(); [lx,ly]=[x,y];
+      signed[id]=true; cv.classList.add('signed');
+      const de = G(id==='canvasLL'?'dateLL':'dateTN');
+      if(!de.textContent) de.textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      checkSub();
+    };
+    const up = () => on=false;
+    cv.addEventListener('mousedown',down); cv.addEventListener('mousemove',move); cv.addEventListener('mouseup',up); cv.addEventListener('mouseleave',up);
+    cv.addEventListener('touchstart',down,{passive:false}); cv.addEventListener('touchmove',move,{passive:false}); cv.addEventListener('touchend',up);
+  });
+}
+function clearSig(id) {
+  const cv=G(id); cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+  cv.classList.remove('signed'); signed[id]=false;
+  G(id==='canvasLL'?'dateLL':'dateTN').textContent='';
+  checkSub();
+}
+document.getElementById('agreeCheck').addEventListener('change', checkSub);
+function checkSub() {
+  const ok = signed.canvasLL && signed.canvasTN && G('agreeCheck').checked;
+  G('submitBtn').disabled = !ok;
+  if(ok){ G('progressFill').style.width='100%'; G('progressLabel').textContent='Ready to submit'; }
+}
+function submitLease() {
+  const ref = 'WLGRE-'+Date.now().toString(36).toUpperCase();
+  S('successRef','REF: '+ref);
+  G('successMsg').textContent = 'Both parties have signed the Residential Lease Agreement for '+G('ag_prop').textContent+'.';
+  G('successOverlay').classList.add('show');
+}
+</script>
+</body>
+</html>
